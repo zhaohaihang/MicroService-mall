@@ -1,0 +1,8 @@
+# 虚拟机nacos
+host: '192.168.159.142'
+port: 8848
+namespace: '41ab20d7-781f-4dfb-81d5-277c4f1d26a3'
+user: "nacos"
+password: "zhaohaihang"
+dataid: "user_api.json"
+group: "dev"

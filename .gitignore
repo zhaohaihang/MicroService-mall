@@ -1,1 +1,2 @@
-/goods_service/log/
+/services/user_service/log
+/apis/user_api/log
