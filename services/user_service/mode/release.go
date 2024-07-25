@@ -2,7 +2,7 @@ package mode
 
 import (
 	"fmt"
-	// "net"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,8 +15,8 @@ import (
 	"github.com/zhaohaihang/user_service/util"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	// "google.golang.org/grpc/health"
-	// "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 // ReleaseMode release服务注册模式
@@ -32,11 +32,11 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	zap.S().Infow("Info", "message", fmt.Sprintf("获取主机端口: %d", global.Port))
 
 	proto.RegisterUserServer(server, &handler.UserService{})
-	// listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ip, global.Port))
-	// if err != nil {
-	// 	zap.S().Errorw("net.Listen错误", "err", err.Error())
-	// 	return
-	// }
+	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ip, global.Port))
+	if err != nil {
+		zap.S().Errorw("net.Listen错误", "err", err.Error())
+		return
+	}
 
 	// 生成检查对象
 	cfg := api.DefaultConfig()
@@ -49,13 +49,13 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	}
 	// 生成检查对象
 	checkConfig := global.ServiceConfig.ServiceInfo
-	// check := &api.AgentServiceCheck{
-	// 	GRPC:                           fmt.Sprintf("%s:%d", global.ServiceConfig.Host, global.Port),
-	// 	GRPCUseTLS:                     false,
-	// 	Timeout:                        "5s",
-	// 	Interval:                       "10s",
-	// 	DeregisterCriticalServiceAfter: checkConfig.DeregisterTime,
-	// }
+	check := &api.AgentServiceCheck{
+		GRPC:                           fmt.Sprintf("%s:%d", global.ServiceConfig.Host, global.Port),
+		GRPCUseTLS:                     false,
+		Timeout:                        "5s",
+		Interval:                       "10s",
+		DeregisterCriticalServiceAfter: checkConfig.DeregisterTime,
+	}
 	// 生成注册对象
 	registration := new(api.AgentServiceRegistration)
 	registration.Name = global.ServiceConfig.Name
@@ -65,7 +65,7 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	registration.Port = global.Port
 	registration.Tags = checkConfig.Tags
 	registration.Address = global.ServiceConfig.Host
-	// registration.Check = check
+	registration.Check = check
 	err = global.Client.Agent().ServiceRegister(registration)
 	if err != nil {
 		zap.S().Errorw("Error", "message", "client.Agent().ServiceRegister 错误", "err", err.Error())
@@ -74,14 +74,14 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	zap.S().Infow("Info", "message", "服务注册成功", "port", registration.Port, "ID", global.ServiceID)
 
 	// 健康检查
-	// grpc_health_v1.RegisterHealthServer(server, health.NewServer())
-	// go func() {
-	// 	err = server.Serve(listen)
-	// 	panic(err)
-	// }()
+	grpc_health_v1.RegisterHealthServer(server, health.NewServer())
+	go func() {
+		err = server.Serve(listen)
+		panic(err)
+	}()
 
 	// 优雅停机
-	quit := make(chan os.Signal,1)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	fmt.Println("serviceID", global.ServiceID)

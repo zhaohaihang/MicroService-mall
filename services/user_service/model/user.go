@@ -5,17 +5,9 @@ import (
 	"time"
 )
 
-// BaseModel
-type BaseModel struct {
-	ID        int32     `gorm:"primaryKey"`
-	CreateAt  time.Time `gorm:"column:add_time"`
-	UpdateAt  time.Time `gorm:"column:update_time"`
-	DeletedAt gorm.DeletedAt
-}
-
 // User 用户表
 type User struct {
-	BaseModel
+	gorm.Model
 	Mobile   string     `gorm:"index:idx_mobile;unique;type:varchar(11);not null comment '用户手机号'"`
 	Password string     `gorm:"type:varchar(100);not null comment '用户密码'"`
 	NickName string     `gorm:"type:varchar(20) comment '用户名'"`

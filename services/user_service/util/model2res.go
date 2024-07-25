@@ -8,7 +8,7 @@ import (
 // ModelToResponse
 func ModelToResponse(user model.User) *proto.UserInfoResponse {
 	userInfoResponse := proto.UserInfoResponse{
-		Id:       user.ID,
+		Id:       int32(user.Model.ID),
 		Password: user.Password,
 		Mobile:   user.Mobile,
 		NickName: user.NickName,
