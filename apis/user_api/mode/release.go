@@ -18,7 +18,7 @@ func ReleaseMode() {
 
 	client, err := api.NewClient(cfg)
 	if err != nil {
-		zap.S().Errorw("服务注册 NewClient 失败", "err", err.Error())
+		zap.S().Errorw("create new consul client failed", "err", err.Error())
 		return
 	}
 
@@ -43,10 +43,10 @@ func ReleaseMode() {
 	registration.Check = check
 	err = client.Agent().ServiceRegister(registration)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "client.Agent().ServiceRegister 错误", "err", err.Error())
+		zap.S().Errorw("Error", "message", "user_api register failed", "err", err.Error())
 		return
 	}
-	zap.S().Infow("Info", "message", "服务注册成功", "port", registration.Port, "ID", ServiceID)
+	zap.S().Infow("Info", "message", "user_api register success", "port", registration.Port, "ID", ServiceID)
 
 	client.Agent().AgentHealthServiceByID(serviceID)
 
@@ -57,8 +57,8 @@ func ReleaseMode() {
 	fmt.Println("serviceID", ServiceID)
 	err = client.Agent().ServiceDeregister(ServiceID)
 	if err != nil {
-		zap.S().Errorw("global.Client.Agent().ServiceDeregister 失败", "err", err.Error())
+		zap.S().Errorw("user_api service deregister  failed", "err", err.Error())
 		return
 	}
-	zap.S().Infow("服务注销", "serviceID", ServiceID)
+	zap.S().Infow("user_api service deregister success", "serviceID", ServiceID)
 }
