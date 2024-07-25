@@ -1,0 +1,303 @@
+package handler
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+
+	"github.com/olivere/elastic/v7"
+	"github.com/opentracing/opentracing-go"
+	"github.com/zhaohaihang/goods_service/global"
+	"github.com/zhaohaihang/goods_service/model"
+	"github.com/zhaohaihang/goods_service/proto"
+	"github.com/zhaohaihang/goods_service/utils"
+	"go.uber.org/zap"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+type Result struct {
+	ID int32
+}
+
+// GoodsList
+// @Description: 获取商品列表
+// @receiver g
+// @param ctx
+// @param GoodsListRequest
+// @return GoodsListResponse
+// @return err
+func (g *GoodsServer) GoodsList(ctx context.Context, request *proto.GoodsFilterRequest) (*proto.GoodsListResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "GoodsList", "request", request)
+
+	parentSpan := opentracing.SpanFromContext(ctx)
+
+	response := &proto.GoodsListResponse{}
+	localDB := global.DB.Model(&model.Goods{})
+
+	// es条件查询
+	q := elastic.NewBoolQuery()
+	if request.KeyWords != "" {
+		//localDB = localDB.Where("name LIKE ?", "%"+request.KeyWords+"%")
+		q = q.Must(elastic.NewMultiMatchQuery(request.KeyWords, "name", "desc"))
+	}
+	if request.IsHot {
+		//localDB = localDB.Where("is_hot=true")
+		q = q.Filter(elastic.NewTermQuery("is_hot", request.IsHot))
+	}
+	if request.IsNew {
+		//localDB = localDB.Where("is_new=true")
+		q = q.Filter(elastic.NewTermQuery("is_new", request.IsNew))
+	}
+	if request.PriceMin > 0 {
+		//localDB = localDB.Where("shop_price>=?", request.PriceMin)
+		q = q.Filter(elastic.NewRangeQuery("shop_price").Gte(request.PriceMin))
+	}
+	if request.PriceMax > 0 {
+		//localDB = localDB.Where("shop_price<=?", request.PriceMax)
+		q = q.Filter(elastic.NewRangeQuery("shop_price").Lte(request.PriceMax))
+	}
+	if request.Brand > 0 {
+		//localDB = localDB.Where("brand_id=?", request.Brand)
+		q = q.Filter(elastic.NewTermQuery("brands_id", request.Brand))
+	}
+	// 查询category 获取categoryID
+	var subQuery string
+	categoryIds := make([]interface{}, 0)
+	if request.TopCategory > 0 {
+		var category model.Category
+		result := global.DB.First(&category, request.TopCategory)
+		if result.RowsAffected == 0 {
+			return nil, status.Errorf(codes.NotFound, "商品分类不存在")
+		}
+
+		if category.Level == 1 {
+			subQuery = fmt.Sprintf("select id from category where parent_category_id in (select id from category WHERE parent_category_id=%d)", request.TopCategory)
+		} else if category.Level == 2 {
+			subQuery = fmt.Sprintf("select id from category WHERE parent_category_id=%d", request.TopCategory)
+		} else if category.Level == 3 {
+			subQuery = fmt.Sprintf("select id from category WHERE id=%d", request.TopCategory)
+		}
+		//localDB = localDB.Where(fmt.Sprintf("category_id in (%s)", subQuery))
+		var results []Result
+		global.DB.Model(model.Category{}).Raw(subQuery).Scan(&results)
+		for _, re := range results {
+			categoryIds = append(categoryIds, re.ID)
+		}
+	}
+	esSpan := opentracing.GlobalTracer().StartSpan("elasticsearch-goods", opentracing.ChildOf(parentSpan.Context()))
+	// 生成term查询
+	q = q.Filter(elastic.NewTermsQuery("category_id", categoryIds...))
+
+	// 分页
+	if request.Pages == 0 {
+		request.Pages = 1
+	}
+	switch {
+	case request.PagePerNums > 100:
+		request.PagePerNums = 100
+	case request.PagePerNums <= 0:
+		request.PagePerNums = 10
+	}
+	result, err := global.EsClient.Search().Index(model.EsGoods{}.GetIndexName()).Query(q).From(int(request.Pages)).Size(int(request.PagePerNums)).Do(context.Background())
+	if err != nil {
+		zap.S().Errorw("Error", "message", "es 查询goods失败", "err", err.Error())
+	}
+	esSpan.Finish()
+	// 获取es中查询出来的所有商品Id
+	goodsIds := make([]int32, 0)
+	response.Total = int32(result.Hits.TotalHits.Value)
+	for _, value := range result.Hits.Hits {
+		goods := model.EsGoods{}
+		_ = json.Unmarshal(value.Source, &goods)
+		goodsIds = append(goodsIds, goods.ID)
+	}
+	goodListSpan := opentracing.GlobalTracer().StartSpan("goods_list", opentracing.ChildOf(parentSpan.Context()))
+	// 交给mysql进行商品的查询
+	var goods []model.Goods
+	localResult := localDB.Preload("Category").Preload("Brand").Find(&goods, goodsIds)
+	if localResult.Error != nil {
+		zap.S().Errorw("Error", "message", "localDB.Preload 失败", "err", err.Error())
+		return nil, status.Errorf(codes.Internal, "数据查询失败")
+	}
+	goodListSpan.Finish()
+
+	// 转换成响应的数据
+	var goodsListResponse []*proto.GoodsInfoResponse
+	for _, goods := range goods {
+		goodsResponse := utils.ModelToResponse(&goods)
+		goodsListResponse = append(goodsListResponse, &goodsResponse)
+	}
+	response.Data = goodsListResponse
+
+	return response, nil
+}
+
+// BatchGetGoods
+// @Description:批量获取商品信息
+// @receiver g
+// @param ctx
+// @param request
+// @return response
+// @return err
+func (g *GoodsServer) BatchGetGoods(ctx context.Context, request *proto.BatchGoodsIdInfo) (*proto.GoodsListResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "BatchGetGoods", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	batchGetGoodsSpan := opentracing.GlobalTracer().StartSpan("BatchGetGoods", opentracing.ChildOf(parentSpan.Context()))
+
+	response := &proto.GoodsListResponse{}
+	var goodsList []model.Goods
+	result := global.DB.Where(request.Id).Find(&goodsList)
+	batchGetGoodsSpan.Finish()
+	var goodsListResponse []*proto.GoodsInfoResponse
+	for _, goods := range goodsList {
+		goodsInfoResponse := utils.ModelToResponse(&goods)
+		goodsListResponse = append(goodsListResponse, &goodsInfoResponse)
+	}
+	response.Total = int32(result.RowsAffected)
+	response.Data = goodsListResponse
+	return response, nil
+}
+
+// CreateGoods
+// @Description: 创建商品
+// @receiver g
+// @param ctx
+// @param request
+// @return response
+// @return err
+func (g *GoodsServer) CreateGoods(ctx context.Context, request *proto.CreateGoodsInfo) (*proto.GoodsInfoResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "CreateGoods", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	createGoodsSpan := opentracing.GlobalTracer().StartSpan("CreateGoods", opentracing.ChildOf(parentSpan.Context()))
+	var category model.Category
+	if result := global.DB.First(&category, request.CategoryId); result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "商品分类不存在")
+	}
+
+	var brand model.Brand
+	if result := global.DB.First(&brand, request.BrandId); result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "品牌不存在")
+	}
+	//先检查redis中是否有这个token
+	//防止同一个token的数据重复插入到数据库中，如果redis中没有这个token则放入redis
+	//这里没有看到图片文件是如何上传， 在微服务中 普通的文件上传已经不再使用
+	goods := model.Goods{
+		Brand:           brand,
+		BrandID:         brand.ID,
+		Category:        category,
+		CategoryID:      category.ID,
+		Name:            request.Name,
+		GoodsSn:         request.GoodsSn,
+		MarketPrice:     request.MarketPrice,
+		ShopPrice:       request.ShopPrice,
+		GoodsBrief:      request.GoodsBrief,
+		ShipFree:        request.ShipFree,
+		Images:          request.Images,
+		DescImages:      request.DescImages,
+		GoodsFrontImage: request.GoodsFrontImage,
+		IsNew:           request.IsNew,
+		IsHot:           request.IsHot,
+		OnSale:          request.OnSale,
+		Stocks:          request.Stocks,
+	}
+	global.DB.Create(&goods)
+	createGoodsSpan.Finish()
+	response := utils.ModelToResponse(&goods)
+	return &response, nil
+}
+
+// DeleteGoods 删除商品
+func (g *GoodsServer) DeleteGoods(ctx context.Context, request *proto.DeleteGoodsInfo) (*proto.OperationResult, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "DeleteGoods", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	deleteGoodsSpan := opentracing.GlobalTracer().StartSpan("DeleteGoods", opentracing.ChildOf(parentSpan.Context()))
+	response := &proto.OperationResult{}
+	result := global.DB.Delete(&model.Goods{BaseModel: model.BaseModel{ID: request.Id}}, request.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "商品不存在")
+	}
+	deleteGoodsSpan.Finish()
+	response.Success = true
+	return response, nil
+}
+
+// UpdateGoods  更新商品信息
+func (g GoodsServer) UpdateGoods(ctx context.Context, request *proto.CreateGoodsInfo) (*proto.GoodsInfoResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "UpdateGoods", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	updateGoodsSpan := opentracing.GlobalTracer().StartSpan("UpdateGoods", opentracing.ChildOf(parentSpan.Context()))
+	var goods model.Goods
+
+	if result := global.DB.First(&goods, request.Id); result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "商品不存在")
+	}
+
+	var category model.Category
+	if result := global.DB.First(&category, request.CategoryId); result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "商品分类不存在")
+	}
+
+	var brand model.Brand
+	if result := global.DB.First(&brand, request.BrandId); result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "品牌不存在")
+	}
+	updateGoodsSpan.Finish()
+	goods.Brand = brand
+	goods.BrandID = brand.ID
+	goods.Category = category
+	goods.CategoryID = category.ID
+	goods.Name = request.Name
+	goods.GoodsSn = request.GoodsSn
+	goods.MarketPrice = request.MarketPrice
+	goods.ShopPrice = request.ShopPrice
+	goods.GoodsBrief = request.GoodsBrief
+	goods.ShipFree = request.ShipFree
+	goods.Images = request.Images
+	goods.DescImages = request.DescImages
+	goods.GoodsFrontImage = request.GoodsFrontImage
+	goods.IsNew = request.IsNew
+	goods.IsHot = request.IsHot
+	goods.OnSale = request.OnSale
+	global.DB.Save(&goods)
+	response := utils.ModelToResponse(&goods)
+	return &response, nil
+}
+
+// GetGoodsDetail 获取商品详细信息
+func (g *GoodsServer) GetGoodsDetail(ctx context.Context, request *proto.GoodsInfoRequest) (*proto.GoodsInfoResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "GetGoodsDetail", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	getGoodsDetailSpan := opentracing.GlobalTracer().StartSpan("GetGoodsDetail", opentracing.ChildOf(parentSpan.Context()))
+	var goods model.Goods
+	result := global.DB.Preload("Category").Preload("Brand").First(&goods, request.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "商品不存在")
+	}
+	getGoodsDetailSpan.Finish()
+	response := utils.ModelToResponse(&goods)
+	return &response, nil
+}
+
+// UpdateGoodsStatus 更新商品状态
+func (g *GoodsServer) UpdateGoodsStatus(ctx context.Context, request *proto.CreateGoodsInfo) (*proto.GoodsInfoResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "UpdateGoodsStatus", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	updateGoodsStatusSpan := opentracing.GlobalTracer().StartSpan("UpdateGoodsStatus", opentracing.ChildOf(parentSpan.Context()))
+	var goods model.Goods
+	result := global.DB.Preload("Category").Preload("Brand").First(&goods, request.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "商品不存在")
+	}
+	goods.IsHot = request.IsHot
+	goods.IsNew = request.IsNew
+	goods.OnSale = request.OnSale
+	result = global.DB.Save(&goods)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	updateGoodsStatusSpan.Finish()
+	response := utils.ModelToResponse(&goods)
+	return &response, nil
+}

@@ -1,0 +1,161 @@
+package handler
+
+import (
+	"context"
+
+	"github.com/opentracing/opentracing-go"
+	"github.com/zhaohaihang/goods_service/global"
+	"github.com/zhaohaihang/goods_service/model"
+	"github.com/zhaohaihang/goods_service/proto"
+	"github.com/zhaohaihang/goods_service/utils"
+	"go.uber.org/zap"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+// CategoryBrandList 获取目录品牌列表
+func (g *GoodsServer) CategoryBrandList(ctx context.Context, request *proto.CategoryBrandFilterRequest) (*proto.CategoryBrandListResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "CategoryBrandList", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	CategoryBrandList := opentracing.GlobalTracer().StartSpan("CategoryBrandList", opentracing.ChildOf(parentSpan.Context()))
+	response := &proto.CategoryBrandListResponse{}
+
+	var categoryBrands []model.GoodsCategoryBrand
+	var total int64
+	// 获取记录总条数
+	global.DB.Find(&model.GoodsCategoryBrand{}).Count(&total)
+	response.Total = int32(total)
+
+	// 连表分页查询
+	global.DB.Preload("Category").Preload("Brand").Scopes(utils.Paginate(int(request.Pages), int(request.PagePerNums))).Find(&categoryBrands)
+	CategoryBrandList.Finish()
+	var categroyBrandsResponse []*proto.CategoryBrandResponse
+	for _, categoryBrand := range categoryBrands {
+		categroyBrandsResponse = append(categroyBrandsResponse, &proto.CategoryBrandResponse{
+			Category: &proto.CategoryInfoResponse{
+				Id:             categoryBrand.Category.ID,
+				Name:           categoryBrand.Category.Name,
+				ParentCategory: categoryBrand.Category.ParentCategoryID,
+				Level:          categoryBrand.Category.Level,
+				IsTab:          categoryBrand.Category.IsTab,
+			},
+			Brand: &proto.BrandInfoResponse{
+				Id:   categoryBrand.Brand.ID,
+				Name: categoryBrand.Brand.Name,
+				Logo: categoryBrand.Brand.Logo,
+			},
+		})
+	}
+	response.Data = categroyBrandsResponse
+	return response, nil
+}
+ 
+// GetCategoryBrandList 获取目录下的品牌列表
+func (g GoodsServer) GetCategoryBrandList(ctx context.Context, request *proto.CategoryInfoRequest) (*proto.BrandListResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "GetCategoryBrandList", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	GetCategoryBrandListSpan := opentracing.GlobalTracer().StartSpan("GetCategoryBrandList", opentracing.ChildOf(parentSpan.Context()))
+
+	response := &proto.BrandListResponse{} // 查询该商品分类是否存在
+	var category model.Category
+	result := global.DB.Find(&category, request.Id).First(&category)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "category is not exists")
+	}
+	// 返回该分类下的 所有商品
+	var categoryBrands []model.GoodsCategoryBrand
+	// TODO:返回数据为空
+	result = global.DB.Preload("Brands").Where(&model.GoodsCategoryBrand{CategoryID: request.Id}).Find(&categoryBrands)
+	if result.RowsAffected > 0 {
+		response.Total = int32(result.RowsAffected)
+	}
+	GetCategoryBrandListSpan.Finish()
+	var brandInfoResponse []*proto.BrandInfoResponse
+	for _, categoryBrand := range categoryBrands {
+		brandInfoResponse = append(brandInfoResponse, &proto.BrandInfoResponse{
+			Id:   categoryBrand.Brand.ID,
+			Name: categoryBrand.Brand.Name,
+			Logo: categoryBrand.Brand.Logo,
+		})
+	}
+	response.Data = brandInfoResponse
+	return response, nil
+}
+
+// CreateCategoryBrand 创建目录下的品牌
+func (g *GoodsServer) CreateCategoryBrand(ctx context.Context, request *proto.CategoryBrandRequest) (*proto.CategoryBrandResponse, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "CreateCategoryBrand", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	CreateCategoryBrandSpan := opentracing.GlobalTracer().StartSpan("CreateCategoryBrand", opentracing.ChildOf(parentSpan.Context()))
+	response := &proto.CategoryBrandResponse{}
+
+	var category model.Category
+	result := global.DB.First(&category, request.CategoryId)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "商品分类不存在")
+	}
+
+	var brand model.Brand
+	result = global.DB.First(&brand, request.BrandId)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "品牌不存在")
+	}
+
+	categoryBrand := model.GoodsCategoryBrand{
+		CategoryID: request.CategoryId,
+		BrandID:    request.BrandId,
+	}
+	global.DB.Save(&categoryBrand)
+	CreateCategoryBrandSpan.Finish()
+	response.Id = categoryBrand.ID
+	return response, nil
+}
+
+// DeleteCategoryBrand 删除目录下的品牌
+func (g *GoodsServer) DeleteCategoryBrand(ctx context.Context, request *proto.CategoryBrandRequest) (*proto.OperationResult, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "DeleteCategoryBrand", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	DeleteCategoryBrandSpan := opentracing.GlobalTracer().StartSpan("DeleteCategoryBrand", opentracing.ChildOf(parentSpan.Context()))
+	response := &proto.OperationResult{}
+
+	result := global.DB.Delete(&model.GoodsCategoryBrand{}, request.Id)
+	if result.RowsAffected == 0 {
+		response.Success = false
+		return response, status.Errorf(codes.InvalidArgument, "商品分类不存在")
+	}
+	DeleteCategoryBrandSpan.Finish()
+	response.Success = true
+	return response, nil
+}
+
+// UpdateCategoryBrand 更新目录下的品牌信息
+func (g *GoodsServer) UpdateCategoryBrand(ctx context.Context, request *proto.CategoryBrandRequest) (*proto.OperationResult, error) {
+	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "UpdateCategoryBrand", "request", request)
+	parentSpan := opentracing.SpanFromContext(ctx)
+	UpdateCategoryBrandSpan := opentracing.GlobalTracer().StartSpan("UpdateCategoryBrand", opentracing.ChildOf(parentSpan.Context()))
+	response := &proto.OperationResult{}
+
+	result := global.DB.First(&model.GoodsCategoryBrand{}, request.Id)
+	if result.RowsAffected == 0 {
+		response.Success = false
+		return response, status.Errorf(codes.InvalidArgument, "商品分类不存在")
+	}
+
+	result = global.DB.Find(&model.Category{}, request.CategoryId)
+	if result.RowsAffected == 0 {
+		response.Success = false
+		return response, status.Errorf(codes.InvalidArgument, "分类不存在")
+	}
+
+	result = global.DB.Find(&model.Brand{}, request.BrandId)
+	if result.RowsAffected == 0 {
+		response.Success = false
+		return response, status.Errorf(codes.InvalidArgument, "品牌不存在")
+	}
+	UpdateCategoryBrandSpan.Finish()
+	// var categoryBrand model.GoodsCategoryBrand
+	// categoryBrand.CategoryID = request.CategoryId
+	// categoryBrand.BrandID = request.BrandId
+	return response, nil
+}
