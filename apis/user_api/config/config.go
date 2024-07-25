@@ -5,7 +5,7 @@ type ApiConfig struct {
 	Host            string            `json:"host"`
 	Tags            []string          `json:"tags"`
 	Port            int               `json:"port"`
-	ServiceInfo Register     `json:"register"`
+	ServiceInfo 	Register     `json:"register"`
 	JWTInfo         JwtConfig         `json:"jwt"`
 	AliSmsInfo      AliSmsConfig      `json:"aliyun_message"`
 	RedisInfo       RedisConfig       `json:"redis"`

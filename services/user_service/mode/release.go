@@ -44,7 +44,7 @@ func ReleaseMode(server *grpc.Server, ip string) {
 
 	global.Client, err = api.NewClient(cfg)
 	if err != nil {
-		zap.S().Errorw("服务注册 NewClient 失败", "err", err.Error())
+		zap.S().Errorw("create new consul client failed", "err", err.Error())
 		return
 	}
 	// 生成检查对象
@@ -52,8 +52,8 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	check := &api.AgentServiceCheck{
 		GRPC:                           fmt.Sprintf("%s:%d", global.ServiceConfig.Host, global.Port),
 		GRPCUseTLS:                     false,
-		Timeout:                        "5s",
-		Interval:                       "10s",
+		Timeout:                         checkConfig.CheckTimeOut,
+		Interval:                       checkConfig.CheckInterval,
 		DeregisterCriticalServiceAfter: checkConfig.DeregisterTime,
 	}
 	// 生成注册对象
@@ -68,10 +68,10 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	registration.Check = check
 	err = global.Client.Agent().ServiceRegister(registration)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "client.Agent().ServiceRegister 错误", "err", err.Error())
+		zap.S().Errorw("Error", "message", "user_service register failed", "err", err.Error())
 		return
 	}
-	zap.S().Infow("Info", "message", "服务注册成功", "port", registration.Port, "ID", global.ServiceID)
+	zap.S().Infow("Info", "message", "user_service register success", "port", registration.Port, "ID", global.ServiceID)
 
 	// 健康检查
 	grpc_health_v1.RegisterHealthServer(server, health.NewServer())
@@ -84,11 +84,11 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	fmt.Println("serviceID", global.ServiceID)
+
 	err = global.Client.Agent().ServiceDeregister(global.ServiceID)
 	if err != nil {
-		zap.S().Errorw("global.Client.Agent().ServiceDeregister 失败", "err", err.Error())
+		zap.S().Errorw("user_api service deregister failed", "err", err.Error())
 		return
 	}
-	zap.S().Infow("服务注销程", "serviceID", global.ServiceID)
+	zap.S().Infow("user_api service deregister success", "serviceID", global.ServiceID)
 }

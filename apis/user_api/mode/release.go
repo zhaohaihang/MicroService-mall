@@ -26,9 +26,9 @@ func ReleaseMode() {
 	check := &api.AgentServiceCheck{
 		HTTP:                           fmt.Sprintf("http://%s:%d/health", global.ApiConfig.Host, global.Port),
 		GRPCUseTLS:                     false,
-		Timeout:                        "5s",
-		Interval:                       "10s",
-		DeregisterCriticalServiceAfter: "30s",
+		Timeout:                        checkConfig.CheckTimeOut,
+		Interval:                       checkConfig.CheckInterval,
+		DeregisterCriticalServiceAfter: checkConfig.DeregisterTime,
 	}
 
 	// 生成注册对象
@@ -54,10 +54,10 @@ func ReleaseMode() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	fmt.Println("serviceID", ServiceID)
+
 	err = client.Agent().ServiceDeregister(ServiceID)
 	if err != nil {
-		zap.S().Errorw("user_api service deregister  failed", "err", err.Error())
+		zap.S().Errorw("user_api service deregister failed", "err", err.Error())
 		return
 	}
 	zap.S().Infow("user_api service deregister success", "serviceID", ServiceID)
