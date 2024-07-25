@@ -23,13 +23,13 @@ func ReleaseMode() {
 	}
 
 	checkConfig := global.ApiConfig.ServiceInfo
-	// check := &api.AgentServiceCheck{
-	// 	HTTP:                           fmt.Sprintf("http://%s:%d/health", global.ApiConfig.Host, global.Port),
-	// 	GRPCUseTLS:                     false,
-	// 	Timeout:                        "5s",
-	// 	Interval:                       "10s",
-	// 	DeregisterCriticalServiceAfter: "30s",
-	// }
+	check := &api.AgentServiceCheck{
+		HTTP:                           fmt.Sprintf("http://%s:%d/health", global.ApiConfig.Host, global.Port),
+		GRPCUseTLS:                     false,
+		Timeout:                        "5s",
+		Interval:                       "10s",
+		DeregisterCriticalServiceAfter: "30s",
+	}
 
 	// 生成注册对象
 	registration := new(api.AgentServiceRegistration)
@@ -40,7 +40,7 @@ func ReleaseMode() {
 	registration.Port = global.Port
 	registration.Tags = checkConfig.Tags
 	registration.Address = global.ApiConfig.Host
-	// registration.Check = check
+	registration.Check = check
 	err = client.Agent().ServiceRegister(registration)
 	if err != nil {
 		zap.S().Errorw("Error", "message", "client.Agent().ServiceRegister 错误", "err", err.Error())
@@ -49,13 +49,6 @@ func ReleaseMode() {
 	zap.S().Infow("Info", "message", "服务注册成功", "port", registration.Port, "ID", ServiceID)
 
 	client.Agent().AgentHealthServiceByID(serviceID)
-
-	// // 健康检查
-	// grpc_health_v1.RegisterHealthServer(server, health.NewServer())
-	// go func() {
-	// 	err = server.Serve(listen)
-	// 	panic(err)
-	// }()
 
 	// 优雅停机
 	quit := make(chan os.Signal, 1)
