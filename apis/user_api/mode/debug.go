@@ -14,7 +14,7 @@ import (
 func DebugMode() {
 	target := "127.0.0.1:8000"
 	global.ApiConfig.Host = "127.0.0.1"
-	global.ApiConfig.Port = 8000
+	global.Port = 8000
 	userConn, err := grpc.Dial(
 		target,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

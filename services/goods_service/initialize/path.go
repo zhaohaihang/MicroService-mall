@@ -8,13 +8,11 @@ import (
 	"runtime"
 )
 
-// InitFileAbsPath
-// @Description: 初始化文件路径
-//
-func InitFileAbsPath() {
+// InitFileAbsPath 初始化文件路径
+func InitFileAbsPath(cfgOption string) {
 	basePath := getCurrentAbsolutePath()
 	global.FilePath = &config.FilePathConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-"+cfgOption+".yaml",
 		LogFile:    basePath + "/log",
 	}
 	fmt.Println("文件路径初始化成功:", basePath)

@@ -6,3 +6,6 @@
 
 /apis/user_api/log
 /apis/user_api/user_api
+
+/apis/goods_api/log
+/apis/goods_api/goods_api

@@ -43,8 +43,6 @@ func InitConfig() {
 		CacheDir:            fmt.Sprintf("%s/%s/%s", global.FilePath.LogFile, "nacos", "cache"),
 		LogLevel:            "debug",
 	}
-	zap.S().Infof("%v",sConfig)
-	zap.S().Infof("%v",cConfig)
 	client, err := clients.CreateConfigClient(map[string]interface{}{
 		"serverConfigs": sConfig,
 		"clientConfig":  cConfig,
@@ -68,5 +66,6 @@ func InitConfig() {
 	if err != nil {
 		zap.S().Fatalw("Unmarshal user sercice config failed: %s", "err", err.Error())
 	}
+	zap.S().Info("load user service  config from nacos success ")
 
 }

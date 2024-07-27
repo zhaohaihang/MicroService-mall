@@ -1,0 +1,54 @@
+package initialize
+
+import (
+	"fmt"
+	"github.com/hashicorp/consul/api"
+	"github.com/opentracing/opentracing-go"
+	"go.uber.org/zap"
+	"github.com/zhaohaihang/goods_api/global"
+	"github.com/zhaohaihang/goods_api/proto"
+	otgrpc "github.com/zhaohaihang/goods_api/utils/otgrpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+func InitGoodsServiceConn() {
+	cfg := api.DefaultConfig()
+	fmt.Println(cfg)
+	consulConfig := global.ApiConfig.ConsulInfo
+	cfg.Address = fmt.Sprintf("%s:%d", consulConfig.Host, consulConfig.Port)
+
+	var goodsServiceHost string
+	var goodsServicePort int
+	client, err := api.NewClient(cfg)
+	if err != nil {
+		zap.S().Errorw("连接注册中心失败", "err", err.Error())
+		return
+	}
+	data, err := client.Agent().ServicesWithFilter(`Service == "goods_service"`)
+	if err != nil {
+		zap.S().Errorw("查询 goods-service失败", "err", err.Error())
+		return
+	}
+	for _, value := range data {
+		goodsServiceHost = value.Address
+		goodsServicePort = value.Port
+		break
+	}
+	if goodsServiceHost == "" || goodsServicePort == 0 {
+		zap.S().Fatal("InitRPC失败")
+		return
+	}
+	zap.S().Infof("查询到goods-service %s:%d", goodsServiceHost, goodsServicePort)
+	target := fmt.Sprintf("%s:%d", goodsServiceHost, goodsServicePort)
+	goodsConn, err := grpc.Dial(target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+		grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())))
+	if err != nil {
+		zap.S().Errorw("grpc Dial错误", "err", err.Error())
+		return
+	}
+	global.GoodsClient = proto.NewGoodsClient(goodsConn)
+	zap.S().Infow("RPC 服务连接成功")
+}

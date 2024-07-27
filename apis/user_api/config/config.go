@@ -3,8 +3,8 @@ package config
 type ApiConfig struct {
 	Name            string            `json:"name"`
 	Host            string            `json:"host"`
-	Tags            []string          `json:"tags"`
-	Port            int               `json:"port"`
+	// Tags            []string          `json:"tags"`
+	// Port            int               `json:"port"`
 	ServiceInfo 	Register     `json:"register"`
 	JWTInfo         JwtConfig         `json:"jwt"`
 	AliSmsInfo      AliSmsConfig      `json:"aliyun_message"`
