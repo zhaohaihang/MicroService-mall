@@ -14,10 +14,12 @@ func main() {
 	Mode := flag.String("mode", "release", "mode debug / release ")
 	flag.Parse()
 	initialize.InitFilePath()
-	initialize.InitConfig()
 	initialize.InitLogger()
+	initialize.InitConfig()
+	// initialize.InitLogger()
 	initialize.InitTranslator("zh")
 	initialize.InitValidator()
+	initialize.InitRedis()
     initialize.InitUserService()
 
 	port, err := utils.GetFreePort()
@@ -27,10 +29,10 @@ func main() {
 	go initialize.InitRouters()
 
 	if *Mode == "release" {
-		zap.S().Warnf("release服务注册模式 \n")
+		zap.S().Warnf("release mode \n")
 		mode.ReleaseMode()
 	} else if *Mode == "debug" {
-		zap.S().Warnf("debug本地调试模式 \n")
+		zap.S().Warnf("debug mode \n")
 		mode.DebugMode()
 	}
 

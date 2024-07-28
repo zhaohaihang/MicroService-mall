@@ -26,7 +26,7 @@ func initMobileValidator() {
 		zap.S().Errorw("mobile bind failed", "error", err.Error())
 	}
 	err = validate.RegisterTranslation("mobile", global.Translator, func(ut ut.Translator) error {
-		return ut.Add("mobile", "{0} invalid mobile number", true)
+		return ut.Add("mobile", "invalid mobile number", true)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, err := ut.T("mobile", fe.Field())
 		if err != nil {

@@ -30,7 +30,7 @@ func InitConfig() {
 		zap.S().Errorw("viper unmarshal failed", "err", err.Error())
 		return
 	}
-	zap.S().Infof(" global.NacosConfig : %#v", global.NacosConfig)
+	zap.S().Infof("global.NacosConfig : %#v", global.NacosConfig)
 
 	// 创建nacos客户端
 	sConfig := []constant.ServerConfig{

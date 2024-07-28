@@ -3,8 +3,6 @@ package config
 type ApiConfig struct {
 	Name            string            `json:"name"`
 	Host            string            `json:"host"`
-	// Tags            []string          `json:"tags"`
-	// Port            int               `json:"port"`
 	ServiceInfo 	Register     `json:"register"`
 	JWTInfo         JwtConfig         `json:"jwt"`
 	AliSmsInfo      AliSmsConfig      `json:"aliyun_message"`
@@ -23,7 +21,8 @@ type AliSmsConfig struct {
 	ApiSecret    string `json:"secret"`
 	SignName     string `json:"signName"`
 	TemplateCode string `json:"template_code"`
-}
+	RegionId	 string `json:"region_id"`
+} 
 
 type ConsulConfig struct {
 	Host string `mapstructure:"host"`
@@ -34,10 +33,6 @@ type RedisConfig struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Password string `json:"password"`
-}
-type WebConfig struct {
-	Name string   `json:"name"`
-	Tags []string `json:"tags"`
 }
 
 type JaegerConfig struct {

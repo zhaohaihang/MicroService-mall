@@ -119,8 +119,7 @@ func Register(c *gin.Context) {
 		return
 	}
 	// 2.通过redis 验证 验证码是否正确
-	connectRedis()
-	value, err := red.Get(context.Background(), registerForm.Mobile).Result()
+	value, err := global.RedisClient.Get(context.Background(), registerForm.Mobile).Result()
 	if err == redis.Nil { // redis中没有验证码
 		zap.S().Warnw("验证码发送/redis存储失败", "用户手机号", registerForm.Mobile)
 		c.JSON(http.StatusBadRequest, gin.H{

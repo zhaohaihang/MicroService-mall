@@ -16,7 +16,7 @@ func InitRouters() {
 	router.InitHealthRoute(ApiGroup)
 	router.InitBaseRouter(ApiGroup)
 	router.InitUserRouter(ApiGroup)
-	zap.S().Infow("路由启动成功")
+	zap.S().Infow("init user_api router success")
 
 	zap.S().Infof("start user api")
 	err := Router.Run(fmt.Sprintf("0.0.0.0:%d", global.Port))

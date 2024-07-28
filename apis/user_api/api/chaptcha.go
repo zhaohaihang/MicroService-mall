@@ -16,9 +16,9 @@ func GetCaptcha(c *gin.Context) {
 	captcha := base64Captcha.NewCaptcha(driver, store)
 	id, b64s, err := captcha.Generate()
 	if err != nil {
-		zap.S().Errorw("Error", "method", "GetCaptcha", "生成验证码失败：", err.Error())
+		zap.S().Errorw("Error", "GetCaptcha", "generate captcha failed", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "生成验证码错误",
+			"msg": "generate captcha failed",
 		})
 		return
 	}
