@@ -67,4 +67,17 @@ func InitConfig() {
 		zap.S().Fatalw("Unmarshal goods sercice config failed: %s", "err", err.Error())
 	}
 	zap.S().Info("load goods service  config from nacos success ")
+
+	//监听配置修改
+	err = client.ListenConfig(vo.ConfigParam{
+		DataId: "goods_service.json",
+		Group:  "dev",
+		OnChange: func(namespace, group, dataId, data string) {
+			// TODO 配置变化时，应该重新反序列化，并且重新初始化一些公共资源
+		},
+	})
+	if err != nil {
+		zap.S().Fatalw("listen goods_sercice config from nacos failed: %s", "err", err.Error())
+	}
+	zap.S().Info("listening nacos config change")
 }
