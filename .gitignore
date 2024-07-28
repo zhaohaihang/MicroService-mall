@@ -1,11 +1,11 @@
-/services/user_service/log
-/services/user_service/user_service
+services/user_service/log
+services/user_service/user_service
 
-/services/goods_service/log
-/services/goods_service/goods_service
+services/goods_service/log
+services/goods_service/goods_service
 
-/apis/user_api/log
-/apis/user_api/user_api
+apis/user_api/log
+apis/user_api/user_api
 
-/apis/goods_api/log
-/apis/goods_api/goods_api
+apis/goods_api/log
+apis/goods_api/goods_api

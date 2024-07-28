@@ -8,6 +8,7 @@ import (
 	"github.com/zhaohaihang/user_api/global"
 	"github.com/zhaohaihang/user_api/proto"
 	"github.com/zhaohaihang/user_api/utils/otgrpc"
+	_ "github.com/mbobakov/grpc-consul-resolver" // 负载均衡
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -30,26 +31,18 @@ func InitUserService() {
 		return
 	}
 	zap.S().Info(data)
-	userServiceHost := ""
-	userServicePort := 0
-	for _, value := range data {
-		zap.S().Info(value.Address)
-		zap.S().Info(value.Port)
-		userServiceHost = value.Address
-		userServicePort = value.Port
-		break
-	}
-	if userServiceHost == "" || userServicePort == 0 {
-		zap.S().Fatal("Init RPC failed")
-		return
-	}
-	zap.S().Infof("find user-service %s:%d", userServiceHost, userServicePort)
-	target := fmt.Sprintf("%s:%d", userServiceHost, userServicePort)
 
-	// 连接服务端
-	userConn, err := grpc.Dial(target,
+	userConn, err := grpc.Dial(
+			fmt.Sprintf("consul://%s:%d/%s?wait=14s", 
+			global.ApiConfig.ConsulInfo.Host,
+			global.ApiConfig.ConsulInfo.Port, 
+			global.ApiConfig.UserServiceInfo.Name),
+
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())))
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+		grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())),
+	)
+
 	if err != nil {
 		zap.S().Errorw("grpc Dial failed", "err", err.Error())
 		return

@@ -8,6 +8,7 @@ type ApiConfig struct {
 	JWTInfo    JWTConfig    `json:"jwt"`
 	JaegerInfo JaegerConfig `json:"jaeger_info"`
 	ServiceInfo 	Register     `json:"register"`
+	GoodsServiceInfo GoodsServiceConfig `json:"goods_service_info"`
 }
 
 type NacosConfig struct {
@@ -44,4 +45,8 @@ type Register struct {
 	CheckTimeOut   string   `json:"check_time_out"`
 	CheckInterval  string   `json:"check_interval"`
 	DeregisterTime string   `json:"deregister_time"`
+}
+
+type GoodsServiceConfig struct {
+	Name string `json:"name"`
 }
