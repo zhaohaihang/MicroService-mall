@@ -25,10 +25,14 @@ func InitDB() {
 	global.DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
+	if err != nil {
+		zap.S().Fatalw("gorm open dsn failed: %s", "err", err.Error())
+	}
+
 	err = global.DB.AutoMigrate(&model.Inventory{})
 	if err != nil {
 		zap.S().Errorw("global.DB.AutoMigrate", "err", err.Error())
 		panic(err)
 	}
-	zap.S().Infof("数据库连接成功")
+	zap.S().Infow("init goods db conn success")
 }
