@@ -4,6 +4,9 @@ services/user_service/user_service
 services/goods_service/log
 services/goods_service/goods_service
 
+services/inventory_service/log
+services/inventory_service/inventory_service
+
 apis/user_api/log
 apis/user_api/user_api
 

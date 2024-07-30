@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-redis/redis/v9"
 	"github.com/zhaohaihang/user_api/global"
+	"go.uber.org/zap"
 )
 
 func InitRedis() {
@@ -13,4 +14,6 @@ func InitRedis() {
 		Addr:     addr,
 		Password: global.ApiConfig.RedisInfo.Password,
 	})
+
+	zap.S().Infof("redis client init success \n")
 }

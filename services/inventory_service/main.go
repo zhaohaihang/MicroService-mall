@@ -2,16 +2,17 @@ package main
 
 import (
 	"flag"
-	"io"
 
 	"github.com/opentracing/opentracing-go"
-	"github.com/zhaohaihang/user_service/handler"
-	"github.com/zhaohaihang/user_service/initialize"
-	"github.com/zhaohaihang/user_service/mode"
-	"github.com/zhaohaihang/user_service/proto"
-	"github.com/zhaohaihang/user_service/util/otgrpc"
+	"github.com/zhaohaihang/inventory_service/handler"
+	"github.com/zhaohaihang/inventory_service/initialize"
+	"github.com/zhaohaihang/inventory_service/mode"
+	"github.com/zhaohaihang/inventory_service/proto"
+	"github.com/zhaohaihang/inventory_service/util/otgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+
+	"io"
 )
 
 func main() {
@@ -19,11 +20,12 @@ func main() {
 	Port := flag.Int("port", 8000, "port ")
 	Mode := flag.String("mode", "release", "mode debug / release ")
 	flag.Parse()
-	
+
 	initialize.InitFileAbsPath()
 	initialize.InitLogger()
 	initialize.InitConfig()
 	initialize.InitDB()
+	initialize.InitRedis()
 	tracer, closer := initialize.InitTracer()
 	defer func(closer io.Closer) {
 		err := closer.Close()
@@ -34,7 +36,7 @@ func main() {
 
 	opentracing.SetGlobalTracer(tracer)
 	server := grpc.NewServer(grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(tracer)))
-	proto.RegisterUserServer(server, &handler.UserService{})
+	proto.RegisterInventoryServer(server, &handler.InventoryService{})
 	if *Mode == "debug" {
 		zap.S().Warnf("start debug mode  \n")
 		mode.DebugMode(server, *IP, *Port)

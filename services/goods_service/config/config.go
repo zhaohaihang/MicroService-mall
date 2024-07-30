@@ -28,7 +28,6 @@ type ConsulConfig struct {
 	Port int    `json:"port"`
 }
 
-
 type JaegerConfig struct {
 	Host string `json:"host"`
 	Port int    `json:"port"`

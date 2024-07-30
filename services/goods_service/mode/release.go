@@ -85,7 +85,7 @@ func ReleaseMode(server *grpc.Server, ip string) {
 	}()
 
 	// 优雅停机
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
