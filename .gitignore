@@ -7,6 +7,9 @@ services/goods_service/goods_service
 services/inventory_service/log
 services/inventory_service/inventory_service
 
+services/order_service/log
+services/order_service/order_service
+
 apis/user_api/log
 apis/user_api/user_api
 

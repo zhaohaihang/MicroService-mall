@@ -1,0 +1,7 @@
+host: "192.168.8.133"
+port: 8848
+namespace: "00620347-45ae-452b-b6b3-e2c1e207bff9"
+user: 'nacos'
+password: 'chx200205173214'
+dataid: 'order_service.json'
+group: 'dev'
