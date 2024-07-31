@@ -2,23 +2,27 @@ package main
 
 import (
 	"flag"
-	"github.com/opentracing/opentracing-go"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"io"
+
+	"github.com/opentracing/opentracing-go"
+	"github.com/zhaohaihang/order_service/handler"
 	"github.com/zhaohaihang/order_service/initialize"
 	"github.com/zhaohaihang/order_service/mode"
+	"github.com/zhaohaihang/order_service/proto"
 	otgrpc "github.com/zhaohaihang/order_service/util/otgrpc"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 func main() {
-	IP := flag.String("ip", "0.0.0.0", "ip地址：服务启动ip地址")
-	Port := flag.Int("port", 8000, "port端口号：服务启动端口号")
-	Mode := flag.String("mode", "release", "mode启动模式：debug 本地调试/release 服务注册")
+	IP := flag.String("ip", "0.0.0.0", "ip address")
+	Port := flag.Int("port", 8000, "port ")
+	Mode := flag.String("mode", "release", "mode debug / release ")
 	flag.Parse()
+
 	initialize.InitFileAbsPath()
-	initialize.InitConfig()
 	initialize.InitLogger()
+	initialize.InitConfig()
 	initialize.InitDB()
 	initialize.InitOtherService()
 
@@ -31,11 +35,13 @@ func main() {
 	}(closer)
 	opentracing.SetGlobalTracer(tracer)
 	server := grpc.NewServer(grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(tracer)))
+	proto.RegisterOrderServer(server, &handler.OrderService{})
+	
 	if *Mode == "debug" {
-		zap.S().Warnf("debug本地调试模式 \n")
+		zap.S().Warnf("start debug mode  \n")
 		mode.DebugMode(server, *IP, *Port)
 	} else if *Mode == "release" {
-		zap.S().Warnf("release服务注册模式 \n")
+		zap.S().Warnf("start release mode\n")
 		mode.ReleaseMode(server, *IP)
 	}
 }

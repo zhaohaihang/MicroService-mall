@@ -15,18 +15,16 @@ import (
 func InitConfig() {
 	// 获得配置文件路径
 	configFileName := fmt.Sprintf(global.FilePath.ConfigFile)
-	// 生成viper
 	v := viper.New()
-	// 指定配置文件
 	v.SetConfigFile(configFileName)
 	err := v.ReadInConfig()
 	if err != nil {
-		panic(err)
+		zap.S().Fatalw("read local nacos config failed: %s", "err", err.Error())
 	}
 	global.NacosConfig = &config.NacosConfig{}
 	err = v.Unmarshal(global.NacosConfig)
 	if err != nil {
-		panic(err)
+		zap.S().Fatalw("unmarshal local nacos config failed: %s", "err", err.Error())
 	}
 	// 连接nacos
 	sConfig := []constant.ServerConfig{
@@ -51,22 +49,33 @@ func InitConfig() {
 		"clientConfig":  cConfig,
 	})
 	if err != nil {
-		panic(err)
+		zap.S().Fatalw("create nacos client failed: %s", "err", err.Error())
 	}
+
 	content, err := client.GetConfig(vo.ConfigParam{
 		DataId: global.NacosConfig.Dataid,
 		Group:  global.NacosConfig.Group,
 	})
 	if err != nil {
-		zap.S().Errorw("client.GetConfig读取文件失败", "err", err.Error())
-		return
+		zap.S().Fatalw("pull order_sercice config from nacos failed", "err", err.Error())
 	}
+
 	global.ServiceConfig = &config.ServiceConfig{}
 	err = json.Unmarshal([]byte(content), global.ServiceConfig)
-	fmt.Printf("%v\n", global.ServiceConfig.ConsulInfo)
 	if err != nil {
-		panic(err)
+		zap.S().Fatalw("Unmarshal order_sercice config failed: %s", "err", err.Error())
 	}
-	fmt.Println("nacos配置拉取成功")
-	global.ServiceConfig.Host = "192.168.8.1"
+	zap.S().Info("load order_sercice  config from nacos success ")
+	//监听配置修改
+	err = client.ListenConfig(vo.ConfigParam{
+		DataId: "order_sercice.json",
+		Group:  "dev",
+		OnChange: func(namespace, group, dataId, data string) {
+			// TODO 配置变化时，应该重新反序列化，并且重新初始化一些公共资源
+		},
+	})
+	if err != nil {
+		zap.S().Fatalw("listen order_sercice config from nacos failed: %s", "err", err.Error())
+	}
+	zap.S().Info("listening nacos config change")
 }

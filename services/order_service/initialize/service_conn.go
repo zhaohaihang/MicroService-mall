@@ -16,29 +16,31 @@ func InitOtherService() {
 }
 
 func initGoodsService() {
-	consulConfig := global.ServiceConfig.ConsulInfo
-
 	goodsConn, err := grpc.Dial(
-		fmt.Sprintf("consul://%s:%d/%s?wait=14s", consulConfig.Host, consulConfig.Port, global.ServiceConfig.GoodsServiceInfo.Name),
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s",
+			global.ServiceConfig.ConsulInfo.Host, 
+			global.ServiceConfig.ConsulInfo.Port, 
+			global.ServiceConfig.GoodsServiceInfo.Name),
 		grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`),
 	)
 	if err != nil {
-		zap.S().Fatalw("连接 【goods_service】商品服务失败", "err", err)
+		zap.S().Fatalw("goods_service conn failed", "err", err)
 	}
-	zap.S().Infof("goods_service服务连接成功")
+	zap.S().Infof("goods_service conn success")
 	global.GoodsServiceClient = proto.NewGoodsClient(goodsConn)
 }
 
 func initInventoryService() {
-	consulConfig := global.ServiceConfig.ConsulInfo
-
 	inventoryConn, err := grpc.Dial(
-		fmt.Sprintf("consul://%s:%d/%s?wait=14s", consulConfig.Host, consulConfig.Port, global.ServiceConfig.InventoryServiceInfo.Name),
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s",
+			global.ServiceConfig.ConsulInfo.Host, 
+			global.ServiceConfig.ConsulInfo.Port, 
+			global.ServiceConfig .InventoryServiceInfo.Name),
 		grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`),
 	)
 	if err != nil {
-		zap.S().Fatalw("连接 【inventory_service】商品服务失败", "err", err)
+		zap.S().Fatalw("inventory_service conn failed", "err", err)
 	}
-	zap.S().Infof("inventory_service服务连接成功")
+	zap.S().Infof("inventory_service conn success")
 	global.InventoryServiceClient = proto.NewInventoryClient(inventoryConn)
 }

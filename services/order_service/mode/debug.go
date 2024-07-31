@@ -2,15 +2,14 @@ package mode
 
 import (
 	"fmt"
+	"net"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"net"
-	"github.com/zhaohaihang/order_service/handler"
-	"github.com/zhaohaihang/order_service/proto"
 )
 
 func DebugMode(server *grpc.Server, ip string, port int) {
-	proto.RegisterOrderServer(server, &handler.OrderService{})
+
 	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ip, port))
 	if err != nil {
 		zap.S().Errorw("net.Listen错误", "err", err.Error())

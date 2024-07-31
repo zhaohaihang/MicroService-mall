@@ -15,10 +15,6 @@ import (
 	"time"
 )
 
-type OrderService struct {
-	proto.UnimplementedOrderServer
-}
-
 // GenerateOrderSn 生成订单号
 func GenerateOrderSn(userId int32) string {
 	now := time.Now()

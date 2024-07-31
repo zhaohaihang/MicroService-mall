@@ -5,7 +5,6 @@ type FilePathConfig struct {
 	LogFile    string
 }
 
-
 type ServiceConfig struct {
 	Name                 string `json:"name"`
 	Host                 string `json:"host"`
@@ -17,7 +16,6 @@ type ServiceConfig struct {
 	GoodsServiceInfo     GoodsServiceConfig     `json:"goods_service"`
 	InventoryServiceInfo InventoryServiceConfig `json:"inventory_service"`
 }
-
 
 type NacosConfig struct {
 	Host      string `mapstructure:"host"`
@@ -46,7 +44,7 @@ type RedisConfig struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Password string `json:"password"`
-	PoolSize int    `json:"poolSize"`
+	PoolSize int    `json:"pool_size"`
 }
 
 type JaegerConfig struct {

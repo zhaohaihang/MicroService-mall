@@ -2,11 +2,13 @@ package initialize
 
 import (
 	"fmt"
+	"io"
+
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
-	"io"
 	"github.com/zhaohaihang/order_service/global"
+	"go.uber.org/zap"
 )
 
 func InitTracer() (opentracing.Tracer, io.Closer) {
@@ -19,7 +21,7 @@ func InitTracer() (opentracing.Tracer, io.Closer) {
 	}
 	tracer, closer, err := cfg.NewTracer(config.Logger(jaeger.StdLogger))
 	if err != nil {
-		panic(err)
+		zap.S().Fatalw("New Tracer failed: %s", "err", err.Error())
 	}
 	return tracer, closer
 }
