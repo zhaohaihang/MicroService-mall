@@ -14,8 +14,26 @@ import (
 )
 
 func InitService() {
+	initOrderService()
 	initGoodsService()
 	initInventoryService()
+}
+
+func initOrderService() {
+	consulConfig := global.ApiConfig.ConsulInfo
+	orderConn, err := grpc.Dial(
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s",
+			consulConfig.Host,
+			consulConfig.Port,
+			global.ApiConfig.OrderService.Name),
+		grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`),
+		grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())),
+	)
+	if err != nil {
+		zap.S().Fatalw("goods_service conn failed", "err", err)
+	}
+	zap.S().Infof("goods_service conn success")
+	global.OrderClient = proto.NewOrderClient(orderConn)
 }
 
 func initGoodsService() {

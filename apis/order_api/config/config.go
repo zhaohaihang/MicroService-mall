@@ -21,6 +21,7 @@ type ApiConfig struct {
 	ServiceInfo 	Register     `json:"register"`
 	ConsulInfo       ConsulConfig           `json:"consul"`
 	JWTInfo          JWTConfig              `json:"jwtConfig"`
+	OrderService 	 OrderServiceConfig	 	`json:"order_service"`
 	GoodsService     GoodsServiceConfig     `json:"goods_service"`
 	InventoryService InventoryServiceConfig `json:"inventory_service"`
 	AlipayInfo       AlipayInfoConfig       `json:"alipay_info"`
@@ -40,6 +41,10 @@ type JWTConfig struct {
 type JaegerConfig struct {
 	Host string `json:"host"`
 	Port int    `json:"port"`
+}
+
+type OrderServiceConfig struct {
+	Name string `json:"name"`
 }
 
 type GoodsServiceConfig struct {
