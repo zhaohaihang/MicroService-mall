@@ -3,22 +3,18 @@ package initialize
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
-	"github.com/zhaohaihang/user_api/config"
-	"github.com/zhaohaihang/user_api/global"
 	"go.uber.org/zap"
+	"github.com/zhaohaihang/order_api/config"
+	"github.com/zhaohaihang/order_api/global"
 )
 
-// InitConfig 初始化配置
 func InitConfig() {
-
-	// 加载本地文件中nacos的配置
 	v := viper.New()
-	v.SetConfigFile(global.FileConfig.ConfigFile)
+	v.SetConfigFile(global.FilePathConfig.ConfigFile)
 	err := v.ReadInConfig()
 	if err != nil {
 		zap.S().Errorw("viper.ReadInConfig failed", "err", err.Error())
@@ -32,19 +28,20 @@ func InitConfig() {
 	}
 	zap.S().Infof("global.NacosConfig : %#v", global.NacosConfig)
 
-	// 创建nacos客户端
 	sConfig := []constant.ServerConfig{
 		{
 			IpAddr: global.NacosConfig.Host,
 			Port:   uint64(global.NacosConfig.Port),
 		},
 	}
+	nacosLogDir := fmt.Sprintf("%s/%s/%s", global.FilePathConfig.LogFile, "nacos", "log")
+	nacosCacheDir := fmt.Sprintf("%s/%s/%s", global.FilePathConfig.LogFile, "nacos", "cache")
 	cConfig := constant.ClientConfig{
 		NamespaceId:         global.NacosConfig.Namespace,
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
-		LogDir:              fmt.Sprintf("%s/%s/%s", global.FileConfig.LogFile, "nacos", "log"),
-		CacheDir:            fmt.Sprintf("%s/%s/%s", global.FileConfig.LogFile, "nacos", "cache"),
+		LogDir:              nacosLogDir,
+		CacheDir:            nacosCacheDir,
 		LogLevel:            "debug",
 	}
 	client, err := clients.CreateConfigClient(map[string]interface{}{
@@ -56,7 +53,6 @@ func InitConfig() {
 		return
 	}
 
-	// 从nacos拉取配置
 	content, err := client.GetConfig(vo.ConfigParam{
 		DataId: global.NacosConfig.Dataid,
 		Group:  global.NacosConfig.Group,
@@ -66,7 +62,6 @@ func InitConfig() {
 		return
 	}
 
-	// 加载配置
 	global.ApiConfig = &config.ApiConfig{}
 	err = json.Unmarshal([]byte(content), global.ApiConfig)
 	if err != nil {
@@ -75,17 +70,16 @@ func InitConfig() {
 	}
 	zap.S().Infof("pull nacos config success %#v", global.ApiConfig)
 
-
-		//监听配置修改
+	//监听配置修改
 	err = client.ListenConfig(vo.ConfigParam{
-		DataId: "user_api.json",
+		DataId: "order_api.json",
 		Group:  "dev",
 		OnChange: func(namespace, group, dataId, data string) {
 			// TODO 配置变化时，应该重新反序列化，并且重新初始化一些公共资源
 		},
 	})
 	if err != nil {
-		zap.S().Fatalw("listen user_api config from nacos failed: %s", "err", err.Error())
+		zap.S().Fatalw("listen order_api config from nacos failed: %s", "err", err.Error())
 	}
 	zap.S().Info("listening nacos config change")
 }

@@ -15,3 +15,6 @@ apis/user_api/user_api
 
 apis/goods_api/log
 apis/goods_api/goods_api
+
+apis/order_api/log
+apis/order_api/order_api
