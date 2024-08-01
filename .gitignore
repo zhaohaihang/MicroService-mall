@@ -10,6 +10,9 @@ services/inventory_service/inventory_service
 services/order_service/log
 services/order_service/order_service
 
+services/userop_service/log
+services/userop_service/userop_service
+
 apis/user_api/log
 apis/user_api/user_api
 
