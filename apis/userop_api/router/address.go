@@ -1,0 +1,17 @@
+package router
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/zhaohaihang/userop_web/api/address"
+	"github.com/zhaohaihang/userop_web/middlewares"
+)
+
+func InitAddressRouter(Router *gin.RouterGroup) {
+	AddressRouter := Router.Group("address", middlewares.Trace())
+	{
+		AddressRouter.GET("", middlewares.JWTAuth(), address.List)
+		AddressRouter.DELETE("/:id", middlewares.JWTAuth(), address.Delete)
+		AddressRouter.POST("", middlewares.JWTAuth(), address.New)
+		AddressRouter.PUT("/:id", middlewares.JWTAuth(), address.Update)
+	}
+}
