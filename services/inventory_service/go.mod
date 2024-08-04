@@ -24,8 +24,21 @@ require (
 )
 
 require (
+	github.com/emirpasic/gods v1.12.0 // indirect
+	github.com/golang/mock v1.4.4 // indirect
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/tidwall/gjson v1.13.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
+	stathat.com/c/consistent v1.0.0 // indirect
+)
+
+require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18 // indirect
+	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/armon/go-metrics v0.4.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect

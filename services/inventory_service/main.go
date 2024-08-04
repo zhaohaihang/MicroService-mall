@@ -26,6 +26,8 @@ func main() {
 	initialize.InitConfig()
 	initialize.InitDB()
 	initialize.InitRedis()
+	initialize.InitRocketMq()
+
 	tracer, closer := initialize.InitTracer()
 	defer func(closer io.Closer) {
 		err := closer.Close()

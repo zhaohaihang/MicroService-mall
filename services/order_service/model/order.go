@@ -8,8 +8,8 @@ import (
 
 type ShoppingCart struct {
 	gorm.Model
-	User    int32 `gorm:"type:int;index"` 
-	Goods   int32 `gorm:"type:int;index"` 
+	UserId    int32 `gorm:"type:int;index"` 
+	GoodsId   int32 `gorm:"type:int;index"` 
 	Nums    int32 `gorm:"type:int"`
 	Checked bool  
 }
@@ -21,7 +21,7 @@ func (ShoppingCart) TableName() string {
 type OrderInfo struct {
 	gorm.Model
 
-	User    int32  `gorm:"type:int;index"`
+	UserId    int32  `gorm:"type:int;index"`
 	OrderSn string `gorm:"type:varchar(30);index"` 
 	PayType string `gorm:"type:varchar(20) comment 'alipay, wechat'"`
 
@@ -42,8 +42,8 @@ func (OrderInfo) TableName() string {
 
 type OrderGoods struct {
 	gorm.Model
-	Order      int32  `gorm:"type:int;index"`
-	Goods      int32  `gorm:"type:int;index"`
+	OrderId      int32  `gorm:"type:int;index"`
+	GoodsId      int32  `gorm:"type:int;index"`
 	GoodsName  string `gorm:"type:varchar(100);index"`
 	GoodsImage string `gorm:"type:varchar(200)"`
 	GoodsPrice float32

@@ -27,13 +27,13 @@ func (i *InventoryService) SetInv(ctx context.Context, request *proto.GoodsInvIn
 	zap.S().Infow("Info", "service", serviceName, "method", "SetInv", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
 	setInventorySpan := opentracing.GlobalTracer().StartSpan("setInventory", opentracing.ChildOf(parentSpan.Context()))
-	
+
 	var inventory model.Inventory
 	global.DB.Where(&model.Inventory{Goods: request.GoodsId}).First(&inventory)
 	inventory.Goods = request.GoodsId
 	inventory.Stocks = request.Num
 	global.DB.Save(&inventory)
-	
+
 	setInventorySpan.Finish()
 	return &empty.Empty{}, nil
 }
@@ -68,13 +68,22 @@ func (i *InventoryService) Sell(ctx context.Context, request *proto.SellInfo) (*
 	parentSpan := opentracing.SpanFromContext(ctx)
 	sellSpan := opentracing.GlobalTracer().StartSpan("sell", opentracing.ChildOf(parentSpan.Context()))
 	tx := global.DB.Begin()
+
+	var details []model.GoodsDetail
+
 	for _, goodInfo := range request.GoodsInfo {
+
+		details = append(details, model.GoodsDetail{
+			GoodsId: goodInfo.GoodsId,
+			Num:     goodInfo.Num,
+		})
+
 		// 加锁
 		mutex := global.Redsync.NewMutex(fmt.Sprintf("goods_%d", goodInfo.GoodsId), redsync.WithTries(100), redsync.WithExpiry(time.Second*20))
 		err := mutex.Lock()
 		if err != nil {
 			zap.S().Errorw("redisync锁错误", "goods_id", goodInfo.GoodsId, "err", err)
-			return nil, status.Errorf(codes.Internal, "内部错误")
+			return nil, status.Errorf(codes.Internal, "获取redis分布式锁异常")
 		}
 
 		var inventory model.Inventory
@@ -92,16 +101,27 @@ func (i *InventoryService) Sell(ctx context.Context, request *proto.SellInfo) (*
 		inventory.Stocks -= goodInfo.Num
 		result = tx.Save(&inventory)
 		if result.Error != nil {
-			return nil, status.Errorf(codes.Internal, "内部错误")
+			return nil, status.Errorf(codes.Internal, "更新库存失败")
 		}
 
 		// 解锁
 		ok, err := mutex.Unlock()
 		if !ok || err != nil {
 			zap.S().Errorw("redisync解锁失败", "goods_id", goodInfo.GoodsId, "err", err.Error())
-			return nil, status.Errorf(codes.Internal, "内部错误")
+			return nil, status.Errorf(codes.Internal, "释放redis分布式锁异常")
 		}
 	}
+
+	sellDetail := model.StockSellDetail{
+		OrderSn: request.OrderSn,
+		Status:  1,
+		Details: details,
+	}
+	if result := tx.Create(&sellDetail); result.RowsAffected == 0 {
+		tx.Rollback()
+		return nil, status.Errorf(codes.Internal, "保存库存扣减历史失败")
+	}
+
 	tx.Commit()
 	sellSpan.Finish()
 	return &empty.Empty{}, nil
@@ -111,7 +131,7 @@ func (i *InventoryService) ReBack(ctx context.Context, request *proto.SellInfo) 
 	zap.S().Infow("Info", "service", serviceName, "method", "ReBack", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
 	rebackSpan := opentracing.GlobalTracer().StartSpan("reback", opentracing.ChildOf(parentSpan.Context()))
-	
+
 	tx := global.DB
 	for _, goodsInvInfo := range request.GoodsInfo {
 		var inventory model.Inventory

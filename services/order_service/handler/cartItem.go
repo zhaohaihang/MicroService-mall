@@ -31,7 +31,7 @@ func (s *OrderService) CartItemList(ctx context.Context, request *proto.UserInfo
 	response := &proto.CartItemListResponse{}
 	var shopCarts []model.ShoppingCart
 	// 根据UserId 查询购物车
-	result := global.DB.Where(&model.ShoppingCart{User: request.Id}).Find(&shopCarts)
+	result := global.DB.Where(&model.ShoppingCart{UserId: request.Id}).Find(&shopCarts)
 	if result.Error != nil {
 		zap.S().Errorw("CartItemList failed", "err", result.Error)
 		return nil, result.Error
@@ -40,8 +40,8 @@ func (s *OrderService) CartItemList(ctx context.Context, request *proto.UserInfo
 	for _, shopCart := range shopCarts {
 		response.Data = append(response.Data, &proto.ShopCartInfoResponse{
 			Id:      int32(shopCart.Model.ID),
-			UserId:  shopCart.User,
-			GoodsId: shopCart.Goods,
+			UserId:  shopCart.UserId,
+			GoodsId: shopCart.GoodsId,
 			Nums:    shopCart.Nums,
 			Checked: shopCart.Checked,
 		})
@@ -57,13 +57,13 @@ func (s *OrderService) CreateCartItem(ctx context.Context, request *proto.CartIt
 	createCartItemSpan := opentracing.GlobalTracer().StartSpan("CreateCartItem", opentracing.ChildOf(parentSpan.Context()))
 	response := &proto.ShopCartInfoResponse{}
 	var shopCart model.ShoppingCart
-	result := global.DB.Where(&model.ShoppingCart{Goods: request.GoodsId, User: request.UserId}).First(&shopCart)
+	result := global.DB.Where(&model.ShoppingCart{GoodsId: request.GoodsId, UserId: request.UserId}).First(&shopCart)
 	if result.RowsAffected == 1 {
 		// 如果记录已经存在
 		shopCart.Nums += request.Nums
 	} else {
-		shopCart.User = request.UserId
-		shopCart.Goods = request.GoodsId
+		shopCart.UserId = request.UserId
+		shopCart.GoodsId = request.GoodsId
 		shopCart.Nums = request.Nums
 		shopCart.Checked = false
 	}
@@ -83,7 +83,7 @@ func (s *OrderService) UpdateCartItem(ctx context.Context, request *proto.CartIt
 	parentSpan := opentracing.SpanFromContext(ctx)
 	updateCartItemSpan := opentracing.GlobalTracer().StartSpan("UpdateCartItem", opentracing.ChildOf(parentSpan.Context()))
 	var shopCart model.ShoppingCart
-	result := global.DB.Where(&model.ShoppingCart{Goods: request.GoodsId, User: request.UserId}).First(&shopCart)
+	result := global.DB.Where(&model.ShoppingCart{GoodsId: request.GoodsId, UserId: request.UserId}).First(&shopCart)
 	if result.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "购物车记录不存在")
 	}
@@ -106,7 +106,7 @@ func (s *OrderService) DeleteCartItem(ctx context.Context, request *proto.CartIt
 	parentSpan := opentracing.SpanFromContext(ctx)
 	deleteCartItemSpan := opentracing.GlobalTracer().StartSpan("DeleteCartItem", opentracing.ChildOf(parentSpan.Context()))
 	var shopCart model.ShoppingCart
-	result := global.DB.Where(&model.ShoppingCart{User: request.UserId, Goods: request.GoodsId}).Delete(&shopCart)
+	result := global.DB.Where(&model.ShoppingCart{UserId: request.UserId, GoodsId: request.GoodsId}).Delete(&shopCart)
 	if result.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "购物车记录不存在")
 	}

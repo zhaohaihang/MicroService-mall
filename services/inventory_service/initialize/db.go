@@ -29,7 +29,7 @@ func InitDB() {
 		zap.S().Fatalw("gorm open dsn failed: %s", "err", err.Error())
 	}
 
-	err = global.DB.AutoMigrate(&model.Inventory{})
+	err = global.DB.AutoMigrate(&model.Inventory{},&model.StockSellDetail{})
 	if err != nil {
 		zap.S().Errorw("global.DB.AutoMigrate", "err", err.Error())
 		panic(err)

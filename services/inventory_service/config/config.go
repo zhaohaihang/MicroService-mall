@@ -8,6 +8,12 @@ type ServiceConfig struct {
 	RedisInfo    RedisConfig    `json:"redis"`
 	JaegerInfo   JaegerConfig   `json:"jaeger"`
 	RegisterInfo RegisterConfig `json:"register"`
+	RocketMQInfo         RocketMQConfig         `json:"rocketmq"`
+}
+
+type RocketMQConfig struct{
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
 }
 
 type FilePathConfig struct {

@@ -15,6 +15,12 @@ type ServiceConfig struct {
 	RegisterInfo         RegisterConfig         `json:"register"`
 	GoodsServiceInfo     GoodsServiceConfig     `json:"goods_service"`
 	InventoryServiceInfo InventoryServiceConfig `json:"inventory_service"`
+	RocketMQInfo         RocketMQConfig         `json:"rocketmq"`
+}
+
+type RocketMQConfig struct{
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
 }
 
 type NacosConfig struct {

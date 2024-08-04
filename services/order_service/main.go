@@ -25,6 +25,7 @@ func main() {
 	initialize.InitConfig()
 	initialize.InitDB()
 	initialize.InitOtherService()
+	initialize.InitRocketMq()
 
 	tracer, closer := initialize.InitTracer()
 	defer func(closer io.Closer) {
