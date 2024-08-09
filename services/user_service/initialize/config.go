@@ -15,7 +15,7 @@ import (
 
 // InitConfig 初始化配置
 func InitConfig() {
-	// 获得配置文件路径
+	// 获得nacos配置文件路径
 	configFileName := fmt.Sprintf(global.FilePath.ConfigFile)
 	v := viper.New()
 	v.SetConfigFile(configFileName)

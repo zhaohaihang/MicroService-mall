@@ -1,9 +1,7 @@
 package handler
 
-import "github.com/zhaohaihang/user_service/proto"
-
 type UserService struct {
-	proto.UnimplementedUserServer
+	// proto.UnimplementedUserServer
 }
 
 const (

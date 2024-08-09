@@ -10,10 +10,10 @@ import (
 )
 
 // InitFileAbsPath 初始化文件路径
-func InitFileAbsPath() {
+func InitFileAbsPath(nacosConfig string) {
 	basePath := getCurrentAbsolutePath()
 	global.FilePath = &config.FilePathConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-"+nacosConfig+".yaml",
 		LogFile:    basePath + "/log",
 	}
 	fmt.Println("file path init success:", basePath)

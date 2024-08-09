@@ -18,9 +18,10 @@ func main() {
 	IP := flag.String("ip", "0.0.0.0", "ip address")
 	Port := flag.Int("port", 8000, "port ")
 	Mode := flag.String("mode", "release", "mode debug / release ")
+	nacosConfig := flag.String("nacosConfig","home","home / com")
 	flag.Parse()
 	
-	initialize.InitFileAbsPath()
+	initialize.InitFileAbsPath(*nacosConfig)
 	initialize.InitLogger()
 	initialize.InitConfig()
 	initialize.InitDB()
@@ -35,6 +36,7 @@ func main() {
 	opentracing.SetGlobalTracer(tracer)
 	server := grpc.NewServer(grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(tracer)))
 	proto.RegisterUserServer(server, &handler.UserService{})
+	
 	if *Mode == "debug" {
 		zap.S().Warnf("start debug mode  \n")
 		mode.DebugMode(server, *IP, *Port)

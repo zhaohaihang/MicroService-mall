@@ -48,7 +48,6 @@ message createUserInfoRequest{
   string mobile = 3;
 }
 
-
 // 更新用户
 message UpdateUserInfoRequest{
   int32 id = 1;
