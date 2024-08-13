@@ -24,6 +24,6 @@ func InitRouters() {
 	zap.S().Infof("start userop api")
 	err := Router.Run(fmt.Sprintf("0.0.0.0:%d", global.Port))
 	if err != nil {
-		panic(err)
+		zap.S().Fatalw("start userop api failed", "err", err)
 	}
 }

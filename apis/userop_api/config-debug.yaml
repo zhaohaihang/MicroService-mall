@@ -1,7 +1,0 @@
-host: '192.168.30.3'
-port: 8848
-namespace: 'fe54a239-5181-4cec-8df5-68ea3ee47f42'
-user: "nacos"
-password: "zhaohaihang"
-dataid: "userop_api.json"
-group: "dev"

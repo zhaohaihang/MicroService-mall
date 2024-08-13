@@ -17,8 +17,11 @@ import (
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	request := &proto.AddressRequest{}
 
 	claims, _ := ctx.Get("claims")

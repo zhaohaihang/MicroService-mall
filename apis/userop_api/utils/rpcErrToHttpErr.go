@@ -7,11 +7,6 @@ import (
 	"net/http"
 )
 
-// HandleGrpcErrorToHttpError
-// @Description: 将grpc错误转换成http错误
-// @param err
-// @param c
-//
 func HandleGrpcErrorToHttpError(err error, c *gin.Context) {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {

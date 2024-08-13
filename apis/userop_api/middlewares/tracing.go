@@ -2,11 +2,13 @@ package middlewares
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
 	"github.com/zhaohaihang/userop_web/global"
+	"go.uber.org/zap"
 
 	"io"
 )
@@ -22,14 +24,14 @@ func Trace() gin.HandlerFunc {
 		}
 		tracer, closer, err := cfg.NewTracer(config.Logger(jaeger.StdLogger))
 		if err != nil {
-			panic(err)
+			zap.S().Fatalw("init trace failed", "err", err)
 		}
 		opentracing.SetGlobalTracer(tracer)
 
 		defer func(closer io.Closer) {
 			err := closer.Close()
 			if err != nil {
-				panic(err)
+				zap.S().Fatalw("close trace failed", "err", err)
 			}
 		}(closer)
 

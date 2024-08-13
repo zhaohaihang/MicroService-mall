@@ -12,11 +12,12 @@ import (
 
 func main() {
 	Mode := flag.String("mode", "release", "mode debug / release ")
+	configFile := flag.String("configFile", "home", "home / com ")
 	flag.Parse()
 
-	initialize.InitFileAbsPath()
-	initialize.InitConfig()
+	initialize.InitFileAbsPath(*configFile)
 	initialize.InitLogger()
+	initialize.InitConfig()
 	initialize.InitTranslator("zh")
 	initialize.InitValidator()
 	initialize.InitService()

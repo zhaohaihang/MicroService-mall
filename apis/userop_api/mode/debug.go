@@ -9,7 +9,7 @@ import (
 )
 
 func DebugMode() {
-	zap.S().Warnf("<<<<<debug模式仅启动Userop服务 关联服务未启动>>>>>")
+	zap.S().Warnf("start debug mode")
 	target := "127.0.0.1:8000"
 	useropConn, err := grpc.Dial(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -18,5 +18,5 @@ func DebugMode() {
 	global.UserFavoriteClient = proto.NewUserFavoriteClient(useropConn)
 	global.AddressClient = proto.NewAddressClient(useropConn)
 	global.MessageClient = proto.NewMessageClient(useropConn)
-	zap.S().Infof("RPC debugg模式 服务连接成功")
+	zap.S().Infof("conn success")
 }

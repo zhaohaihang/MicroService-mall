@@ -8,10 +8,10 @@ import (
 	"github.com/zhaohaihang/userop_web/global"
 )
 
-func InitFileAbsPath() {
+func InitFileAbsPath(configFile string) {
 	basePath := getCurrentAbsolutePath()
 	global.FilePath = &config.FilePathConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-" + configFile + ".yaml",
 		LogFile:    basePath + "/log",
 	}
 }

@@ -20,10 +20,10 @@ import (
 func InitTranslator(locale string) {
 	err := initTrans(locale)
 	if err != nil {
-		zap.S().Errorw("初始化 翻译器失败")
+		zap.S().Errorw("init translator failed")
 		return
 	}
-	zap.S().Infow("翻译器加载成功")
+	zap.S().Infow("init translator success")
 }
 
 func initTrans(locale string) (err error) {

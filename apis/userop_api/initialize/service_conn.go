@@ -15,7 +15,6 @@ import (
 func InitService() {
 	initUseropService()
 	initGoodsService()
-
 }
 
 func initUseropService() {

@@ -1,13 +1,13 @@
 package config
 
 type NacosConfig struct {
-	Host      string `mapstructure:"host"`
-	Port      int    `mapstructure:"port"`
-	Namespace string `mapstructure:"namespace"`
-	User      string `mapstructure:"user"`
-	Password  string `mapstructure:"password"`
-	Dataid    string `mapstructure:"dataid"`
-	Group     string `mapstructure:"group"`
+	Host      string `yaml:"host"`
+	Port      int    `yaml:"port"`
+	Namespace string `yaml:"namespace"`
+	User      string `yaml:"user"`
+	Password  string `yaml:"password"`
+	Dataid    string `yaml:"dataid"`
+	Group     string `yaml:"group"`
 }
 
 type ApiConfig struct {
@@ -29,7 +29,7 @@ type ConsulConfig struct {
 }
 
 type JWTConfig struct {
-	SigningKey string `mapstructure:"key" json:"key"`
+	SigningKey string `json:"key"`
 }
 
 type JaegerConfig struct {

@@ -14,22 +14,24 @@ import (
 )
 
 func InitConfig() {
-	configFileName := fmt.Sprintf("%s", global.FilePath.ConfigFile)
+	// 加载本地nacos配置
 	v := viper.New()
-	v.SetConfigFile(configFileName)
+	v.SetConfigType("yaml")
+	v.SetConfigFile(global.FilePath.ConfigFile)
 	err := v.ReadInConfig()
 	if err != nil {
-		zap.S().Errorw("viper.ReadInConfig failed", "err", err.Error())
+		zap.S().Errorw("load local nacos config failed", "err", err.Error())
 		return
 	}
 	global.NacosConfig = &config.NacosConfig{}
 	err = v.Unmarshal(global.NacosConfig)
 	if err != nil {
-		zap.S().Errorw("viper unmarshal failed", "err", err.Error())
+		zap.S().Errorw("unmarshal local nacos config failed", "err", err.Error())
 		return
 	}
-	zap.S().Infof("global.NacosConfig : %#v", global.NacosConfig)
+	zap.S().Infof("nacos config context is : %#v", global.NacosConfig)
 
+	// 创建 nacos 客户端
 	sConfig := []constant.ServerConfig{
 		{
 			IpAddr: global.NacosConfig.Host,
@@ -51,19 +53,21 @@ func InitConfig() {
 		"clientConfig":  cConfig,
 	})
 	if err != nil {
-		zap.S().Errorw("nacos client conn failed", "err", err.Error())
+		zap.S().Errorw("nacos client create failed", "err", err.Error())
 		return
 	}
 
+	// 从nacos 服务端拉取配置
 	content, err := client.GetConfig(vo.ConfigParam{
 		DataId: global.NacosConfig.Dataid,
 		Group:  global.NacosConfig.Group,
 	})
 	if err != nil {
-		zap.S().Errorw("client.GetConfig load failed", "err", err.Error())
+		zap.S().Errorw("load config from nacos server failed", "err", err.Error())
 		return
 	}
 
+	// 反序列化配置
 	global.ApiConfig = &config.ApiConfig{}
 	err = json.Unmarshal([]byte(content), global.ApiConfig)
 	if err != nil {
