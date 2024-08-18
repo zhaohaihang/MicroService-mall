@@ -1,13 +1,12 @@
 package config
 
-
 type ApiConfig struct {
-	Name       string       `json:"name"`
-	Host       string       `json:"host"`
-	ConsulInfo ConsulConfig `json:"consul"`
-	JWTInfo    JWTConfig    `json:"jwt"`
-	JaegerInfo JaegerConfig `json:"jaeger_info"`
-	ServiceInfo 	Register     `json:"register"`
+	Name             string             `json:"name"`
+	Host             string             `json:"host"`
+	ConsulInfo       ConsulConfig       `json:"consul"`
+	JWTInfo          JWTConfig          `json:"jwt"`
+	JaegerInfo       JaegerConfig       `json:"jaeger_info"`
+	ServiceInfo      Register           `json:"register"`
 	GoodsServiceInfo GoodsServiceConfig `json:"goods_service_info"`
 }
 

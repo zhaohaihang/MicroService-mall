@@ -14,26 +14,24 @@ import (
 	"strconv"
 )
 
-// List
-// @Description: 获取商品列表
-// @param ctx
-//
+// List 获取商品列表
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
-	zap.S().Infof("goods 【List】获取商品列表 request:%v", ctx.Request.Host)
+
+	zap.S().Infof("goods List request:%v", ctx.Request.Host)
 	request := &proto.GoodsFilterRequest{}
 
 	priceMin := ctx.DefaultQuery("pmin", "0")
 	priceMinInt, _ := strconv.Atoi(priceMin)
 	request.PriceMin = int32(priceMinInt)
-
 	priceMax := ctx.DefaultQuery("pmax", "0")
 	priceMaxInt, _ := strconv.Atoi(priceMax)
 	request.PriceMax = int32(priceMaxInt)
-
 	isHot := ctx.DefaultQuery("ih", "0")
 	if isHot == "1" {
 		request.IsHot = true
@@ -49,18 +47,14 @@ func List(ctx *gin.Context) {
 	categoryId := ctx.DefaultQuery("c", "0")
 	categoryIdInt, _ := strconv.Atoi(categoryId)
 	request.TopCategory = int32(categoryIdInt)
-
 	pages := ctx.DefaultQuery("p", "0")
 	pagesInt, _ := strconv.Atoi(pages)
 	request.Pages = int32(pagesInt)
-
 	perNums := ctx.DefaultQuery("pnum", "0")
 	perNumsInt, _ := strconv.Atoi(perNums)
 	request.PagePerNums = int32(perNumsInt)
-
 	keywords := ctx.DefaultQuery("q", "")
 	request.KeyWords = keywords
-
 	brandId := ctx.DefaultQuery("b", "0")
 	brandIdInt, _ := strconv.Atoi(brandId)
 	request.Brand = int32(brandIdInt)
@@ -71,6 +65,7 @@ func List(ctx *gin.Context) {
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	responseMap := map[string]interface{}{
 		"total": response.Total,
 	}
@@ -96,7 +91,7 @@ func List(ctx *gin.Context) {
 			},
 			"is_host": goods.IsHot,
 			"is_new":  goods.IsNew,
-			"on_sale": goods.OnSale,
+			"on_sale": goods.OnSale, 
 		}
 		goodsList = append(goodsList, goodsMap)
 	}
@@ -105,22 +100,23 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New
-// @Description: 创建商品
-// @param ctx
-//
+// New 创建商品
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
-	zap.S().Infof("goods 【New】新建商品 request:%v", ctx.Request.Host)
+
+	zap.S().Infof("goods New request:%v", ctx.Request.Host)
 	goodsForm := forms.GoodsForm{}
 	if err := ctx.ShouldBindJSON(&goodsForm); err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
+
 	goodsClient := global.GoodsClient
 	rsp, err := goodsClient.CreateGoods(context.WithValue(context.Background(), "ginContext", ctx), &proto.CreateGoodsInfo{
 		Name:            goodsForm.Name,
@@ -146,16 +142,16 @@ func New(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// Detail
-// @Description: 获取商品详情
-// @param ctx
-//
+// Detail  获取商品详情
 func Detail(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
-	zap.S().Infof("goods 【Detail】获取商品详情 request:%v", ctx.Request.Host)
+	
+	zap.S().Infof("goods Detail request:%v", ctx.Request.Host)
 	id := ctx.Param("id")
 	i, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
@@ -198,9 +194,11 @@ func Detail(ctx *gin.Context) {
 func Delete(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
-	zap.S().Infof("goods 【Delelte】删除商品 request:%v", ctx.Request.Host)
+	zap.S().Infof("goods Delelte request:%v", ctx.Request.Host)
 	id := ctx.Param("id")
 	i, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
@@ -226,9 +224,11 @@ func Delete(ctx *gin.Context) {
 func UpdateStatus(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
-	zap.S().Infof("goods 【Update】更新商品信息 request:%v", ctx.Request.Host)
+	zap.S().Infof("goods Update request:%v", ctx.Request.Host)
 	goodsStatusForm := forms.GoodsStatusForm{}
 	err := ctx.ShouldBind(&goodsStatusForm)
 	if err != nil {
@@ -278,7 +278,9 @@ func UpdateStatus(ctx *gin.Context) {
 func Update(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 	goodsForm := forms.GoodsForm{}
 	err := ctx.ShouldBind(&goodsForm)

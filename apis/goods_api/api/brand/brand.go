@@ -14,22 +14,19 @@ import (
 	"strconv"
 )
 
-// List
-// @Description: 获取品牌列表
-// @param ctx
-//
+// List  获取品牌列表
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	pn := ctx.DefaultQuery("pn", "0")
 	pnInt, _ := strconv.Atoi(pn)
-
 	pSize := ctx.DefaultQuery("psize", "10")
 	pSizeInt, _ := strconv.Atoi(pSize)
-
 	response, err := global.GoodsClient.BrandList(context.WithValue(context.Background(), "ginContext", ctx), &proto.BrandFilterRequest{
 		Pages:       int32(pnInt),
 		PagePerNums: int32(pSizeInt),
@@ -39,6 +36,7 @@ func List(ctx *gin.Context) {
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	responseMap := make(map[string]interface{})
 	brandList := make([]interface{}, 0)
 	responseMap["total"] = response.Total
@@ -57,7 +55,9 @@ func List(ctx *gin.Context) {
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	brandForm := forms.BrandForm{}
@@ -67,6 +67,7 @@ func New(ctx *gin.Context) {
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
+
 	response, err := global.GoodsClient.CreateBrand(context.WithValue(context.Background(), "ginContext", ctx), &proto.BrandRequest{
 		Name: brandForm.Name,
 		Logo: brandForm.Logo,
@@ -76,6 +77,7 @@ func New(ctx *gin.Context) {
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	responseMap := make(map[string]interface{})
 	responseMap["id"] = response.Id
 	responseMap["name"] = response.Name
@@ -87,7 +89,9 @@ func New(ctx *gin.Context) {
 func Delete(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	id := ctx.Param("id")
@@ -97,6 +101,7 @@ func Delete(ctx *gin.Context) {
 		ctx.Status(http.StatusNotFound)
 		return
 	}
+
 	response, err := global.GoodsClient.DeleteBrand(context.WithValue(context.Background(), "ginContext", ctx), &proto.BrandRequest{
 		Id: int32(idInt),
 	})
@@ -105,6 +110,7 @@ func Delete(ctx *gin.Context) {
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": response.Success,
 	})
@@ -114,8 +120,11 @@ func Delete(ctx *gin.Context) {
 func Update(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	brandForm := forms.BrandForm{}
 	err := ctx.ShouldBind(&brandForm)
 	if err != nil {
@@ -124,14 +133,15 @@ func Update(ctx *gin.Context) {
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
+
 	id := ctx.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}
+
 	response, err := global.GoodsClient.UpdateBrand(context.WithValue(context.Background(), "ginContext", ctx), &proto.BrandRequest{
 		Id:   int32(idInt),
 		Name: brandForm.Name,
@@ -139,7 +149,6 @@ func Update(ctx *gin.Context) {
 	})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}

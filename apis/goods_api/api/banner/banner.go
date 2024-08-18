@@ -18,12 +18,15 @@ import (
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+	
 	response, err := global.GoodsClient.BannerList(context.WithValue(context.Background(), "ginContext", ctx), &empty.Empty{})
-	zap.S().Infof("List 触发 request:%v", ctx.Request.Host)
+	zap.S().Infof("List request:%v", ctx.Request.Host)
 	if err != nil {
-		zap.S().Errorw("Error", "err", err.Error())
+		zap.S().Errorw("call rpc BannerList failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
@@ -40,15 +43,15 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New
-// @Description: 创建轮播图
-// @param ctx
-//
+// New创建轮播图
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	bannerForm := forms.BannerForm{}
 	err := ctx.ShouldBind(&bannerForm)
 	if err != nil {
@@ -77,15 +80,15 @@ func New(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// Update
-// @Description: 更新轮播图信息
-// @param ctx
-//
+// Update 更新轮播图信息
 func Update(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	bannerForm := forms.BannerForm{}
 	err := ctx.ShouldBind(&bannerForm)
 	if err != nil {
@@ -124,20 +127,19 @@ func Update(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// Delete
-// @Description: 删除轮播图
-// @param ctx
-//
+// Delete 删除轮播图
 func Delete(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	id := ctx.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}

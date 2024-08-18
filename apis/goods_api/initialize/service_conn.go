@@ -3,7 +3,6 @@ package initialize
 import (
 	"fmt"
 
-	"github.com/hashicorp/consul/api"
 	_ "github.com/mbobakov/grpc-consul-resolver" // 负载均衡
 	"github.com/opentracing/opentracing-go"
 	"github.com/zhaohaihang/goods_api/global"
@@ -15,22 +14,6 @@ import (
 )
 
 func InitGoodsServiceConn() {
-	cfg := api.DefaultConfig()
-	consulConfig := global.ApiConfig.ConsulInfo
-	cfg.Address = fmt.Sprintf("%s:%d", consulConfig.Host, consulConfig.Port)
-	client, err := api.NewClient(cfg)
-	if err != nil {
-		zap.S().Errorw("create consul client failed", "err", err.Error())
-		return
-	}
-
-	data, err := client.Agent().ServicesWithFilter(`Service == "goods_service"`)
-	if err != nil {
-		zap.S().Errorw("search  goods-service failed", "err", err.Error())
-		return
-	}
-	zap.S().Info(data)
-
 	goodsConn, err := grpc.Dial(
 		fmt.Sprintf("consul://%s:%d/%s?wait=14s",
 			global.ApiConfig.ConsulInfo.Host,

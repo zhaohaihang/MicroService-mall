@@ -8,29 +8,25 @@ import (
 )
 
 // HandleGrpcErrorToHttpError
-// @Description: 将grpc错误转换成http错误
-// @param err
-// @param c
-//
 func HandleGrpcErrorToHttpError(err error, c *gin.Context) {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
 				c.JSON(http.StatusNotFound, gin.H{
-					"msg": "未找到",
+					"msg": "can not find",
 				})
 			case codes.Internal:
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"msg": "内部错误",
+					"msg": "internal server error",
 				})
 			case codes.InvalidArgument:
 				c.JSON(http.StatusBadRequest, gin.H{
-					"msg": "参数错误",
+					"msg": "Bad Request",
 				})
 			default:
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"msg": "其它错误",
+					"msg": "other internal server error",
 				})
 			}
 		}

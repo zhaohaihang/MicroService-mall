@@ -16,52 +16,49 @@ import (
 	"strconv"
 )
 
-// List
-// @Description: 获取商品目录列表
-// @param ctx
-//
+// List 获取商品目录列表
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	response, err := global.GoodsClient.GetAllCategoriesList(context.WithValue(context.Background(), "ginContext", ctx), &empty.Empty{})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	data := make([]interface{}, 0)
 	err = json.Unmarshal([]byte(response.JsonData), &data)
 	if err != nil {
-		zap.S().Errorw("Error", "err", err.Error())
-
-		zap.S().Errorw("Category 【list】获取商品分类失败", "err", err.Error())
+		zap.S().Errorw("nmarshal data from rpc failed", "err", err.Error())
 		return
 	}
 	ctx.JSON(http.StatusOK, data)
 	entry.Exit()
 }
-
-// Detail
-// @Description: 获取商品目录详情信息
-// @param ctx
-//
+ 
+// Detail 获取商品目录详情信息
 func Detail(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	id := ctx.Param("id")
 	i, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}
+
 	responseMap := make(map[string]interface{})
 	subCategorys := make([]interface{}, 0)
 	response, err := global.GoodsClient.GetSubCategory(context.WithValue(context.Background(), "ginContext", ctx), &proto.CategoryListRequest{
@@ -69,10 +66,10 @@ func Detail(ctx *gin.Context) {
 	})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	for _, value := range response.SubCategory {
 		subCategorys = append(subCategorys, map[string]interface{}{
 			"id":              value.Id,
@@ -92,24 +89,23 @@ func Detail(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New
-// @Description: 创建商品目录
-// @param ctx
-//
+// New 创建商品目录
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	categoryForm := forms.CategoryForm{}
 	err := ctx.ShouldBind(&categoryForm)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
+
 	response, err := global.GoodsClient.CreateCategory(context.WithValue(context.Background(), "ginContext", ctx), &proto.CategoryInfoRequest{
 		Name:           categoryForm.Name,
 		ParentCategory: categoryForm.ParentCategory,
@@ -118,10 +114,10 @@ func New(ctx *gin.Context) {
 	})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	responseMap := map[string]interface{}{
 		"id":     response.Id,
 		"name":   response.Name,
@@ -136,56 +132,57 @@ func New(ctx *gin.Context) {
 func Delete(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	id := ctx.Param("id")
 	i, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}
+
 	response, err := global.GoodsClient.DeleteCategory(context.WithValue(context.Background(), "ginContext", ctx), &proto.DeleteCategoryRequest{Id: int32(i)})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": response.Success,
 	})
 	entry.Exit()
 }
 
-// Update
-// @Description: 更新目录信息
-// @param ctx
-//
+// Update 更新目录信息
 func Update(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	categoryForm := forms.UpdateCategoryForm{}
 	err := ctx.ShouldBind(&categoryForm)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
+
 	id := ctx.Param("id")
 	i, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}
+
 	request := &proto.CategoryInfoRequest{
 		Id:   int32(i),
 		Name: categoryForm.Name,
@@ -197,10 +194,10 @@ func Update(ctx *gin.Context) {
 	response, err := global.GoodsClient.UpdateCategory(context.WithValue(context.Background(), "ginContext", ctx), request)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+	
 	ctx.JSON(http.StatusOK, gin.H{
 		"id":     response.Id,
 		"name":   response.Name,

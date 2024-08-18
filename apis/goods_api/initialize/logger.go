@@ -16,16 +16,13 @@ import (
 var dest io.Writer
 var logFileWriter io.Writer
 
-// InitLogger
-// @Description: 初始化Logger
-//
 func InitLogger() {
 	writeSyncer := getLogWriter()
 	encoder := getEncoder()
 	core := zapcore.NewCore(encoder, writeSyncer, zapcore.InfoLevel)
 	logger := zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(logger)
-	zap.S().Infow("日志初始化成功")
+	zap.S().Infow("logger init success")
 }
 
 func getEncoder() zapcore.Encoder {

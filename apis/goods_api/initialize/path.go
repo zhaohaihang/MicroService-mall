@@ -1,20 +1,19 @@
 package initialize
 
 import (
-	"fmt"
-	"github.com/zhaohaihang/goods_api/config"
-	"github.com/zhaohaihang/goods_api/global"
 	"path"
 	"runtime"
+
+	"github.com/zhaohaihang/goods_api/config"
+	"github.com/zhaohaihang/goods_api/global"
 )
 
-func InitFileAbsPath() {
+func InitFileAbsPath(configFile string) {
 	basePath := getCurrentAbsolutePath()
 	global.FilePath = &config.FilePathConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-" + configFile + ".yaml",
 		LogFile:    basePath + "/log",
 	}
-	fmt.Println("文件路径初始化成功:", basePath)
 }
 
 func getCurrentAbsolutePath() string {

@@ -18,10 +18,10 @@ import (
 func InitTranslator(locale string) {
 	err := initTrans(locale)
 	if err != nil {
-		zap.S().Errorw("初始化 翻译器失败")
+		zap.S().Errorw("init translator failed")
 		return
 	}
-	zap.S().Infow("翻译器加载成功")
+	zap.S().Infow("init translator success")
 }
 
 func initTrans(locale string) (err error) {
@@ -49,19 +49,19 @@ func initTrans(locale string) (err error) {
 		case "en":
 			err := en_translations.RegisterDefaultTranslations(v, global.Translator)
 			if err != nil {
-				zap.S().Errorw("初始化 英文翻译器 失败")
+				zap.S().Errorw("init en translator failed")
 				return err
 			}
 		case "zh":
 			err := zh_translations.RegisterDefaultTranslations(v, global.Translator)
 			if err != nil {
-				zap.S().Errorw("初始化 中文翻译器 失败")
+				zap.S().Errorw("init zh translator failed")
 				return err
 			}
 		default:
 			err := zh_translations.RegisterDefaultTranslations(v, global.Translator)
 			if err != nil {
-				zap.S().Errorw("初始化 中文翻译器 失败")
+				zap.S().Errorw("init default translator failed")
 				return err
 			}
 		}

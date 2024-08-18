@@ -11,14 +11,17 @@ import (
 )
 
 func main() {
-	// Port := flag.Int("port", 8022, "服务启动端口")
-	Mode := flag.String("mode", "release", "开发模式debug / 服务注册release")
+	Mode := flag.String("mode", "release", "mode debug / release ")
+	nacosConfig := flag.String("nacosConfig","home","home / com")
 	flag.Parse()
-	initialize.InitFileAbsPath()
-	initialize.InitConfig()
+
+	initialize.InitFileAbsPath(*nacosConfig)
 	initialize.InitLogger()
+	initialize.InitConfig()
+	initialize.InitSentinel()
 	initialize.InitTranslator("zh")
 	initialize.InitGoodsServiceConn()
+
 
 	port, err := utils.GetFreePort()
 	if err == nil {
@@ -29,11 +32,11 @@ func main() {
 
 	// 判断启动模式
 	if *Mode == "debug" {
-		zap.S().Warnf("debug本地调试模式 \n")
-		mode.DebugMode()
-	} else if *Mode == "release" {
-		zap.S().Warnf("release服务注册模式 \n")
+		zap.S().Warnf("release mode \n")
 		mode.ReleaseMode()
+	} else if *Mode == "debug" {
+		zap.S().Warnf("debug mode \n")
+		mode.DebugMode()
 	}
 	
 }

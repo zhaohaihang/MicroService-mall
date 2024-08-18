@@ -14,23 +14,22 @@ import (
 	"strconv"
 )
 
-// List
-// @Description: 获取商品目录品牌列表
-// @param ctx
-//
+// List 获取商品目录品牌列表
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 
 	response, err := global.GoodsClient.CategoryBrandList(context.WithValue(context.Background(), "ginContext", ctx), &proto.CategoryBrandFilterRequest{})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+	
 	responseMap := make(map[string]interface{})
 	responseMap["total"] = response.Total
 	list := make([]interface{}, 0)
@@ -54,30 +53,29 @@ func List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, responseMap)
 	entry.Exit()
 }
-
-// Detail
-// @Description: 根据id获取目录下的全部品牌
-// @param ctx
-//
+ 
+// Detail 根据id获取目录下的全部品牌
 func Detail(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	id := ctx.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}
+
 	response, err := global.GoodsClient.GetCategoryBrandList(context.WithValue(context.Background(), "ginContext", ctx), &proto.CategoryInfoRequest{
 		Id: int32(idInt),
 	})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
@@ -94,20 +92,19 @@ func Detail(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New
-// @Description: 创建目录商品分类
-// @param ctx
-//
+// New 创建目录商品分类
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	categoryBrandForm := forms.CategoryBrandForm{}
 	err := ctx.ShouldBind(&categoryBrandForm)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
@@ -118,10 +115,10 @@ func New(ctx *gin.Context) {
 	})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	responseMap := make(map[string]interface{})
 	responseMap["id"] = response.Id
 	responseMap["category"] = response.Category
@@ -131,20 +128,19 @@ func New(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// Update
-// @Description: 更新商品目录-品牌
-// @param ctx
-//
+// Update 更新商品目录-品牌
 func Update(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
+
 	categoryBrandForm := forms.CategoryBrandForm{}
 	err := ctx.ShouldBind(&categoryBrandForm)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
@@ -153,7 +149,6 @@ func Update(ctx *gin.Context) {
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}
@@ -165,30 +160,28 @@ func Update(ctx *gin.Context) {
 	})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": response.Success,
 	})
 	entry.Exit()
 }
-
-// Delete
-// @Description: 删除商品目录-品牌
-// @param ctx
-//
+ 
+// Delete 删除商品目录-品牌
 func Delete(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
-		return
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
+		return 
 	}
 	id := ctx.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		ctx.Status(http.StatusNotFound)
 		return
 	}
@@ -196,10 +189,10 @@ func Delete(ctx *gin.Context) {
 	response, err := global.GoodsClient.DeleteCategoryBrand(context.WithValue(context.Background(), "ginContext", ctx), &proto.CategoryBrandRequest{Id: int32(idInt)})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
-
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": response.Success,
 	})
