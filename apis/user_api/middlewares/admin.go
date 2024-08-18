@@ -15,7 +15,7 @@ func AdminAuth() gin.HandlerFunc {
 
 		if currentUser.AuthorityId != 2 {
 			c.JSON(http.StatusForbidden, gin.H{
-				"msg": "没有权限",
+				"msg": "role has not Authorited",
 			})
 			c.Abort()
 			return

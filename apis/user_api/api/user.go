@@ -10,8 +10,8 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/zhaohaihang/user_api/forms"
 	"github.com/zhaohaihang/user_api/global"
-	"github.com/zhaohaihang/user_api/response"
 	"github.com/zhaohaihang/user_api/proto"
+	"github.com/zhaohaihang/user_api/response"
 	"go.uber.org/zap"
 
 	"github.com/zhaohaihang/user_api/utils"
@@ -62,7 +62,7 @@ func PasswordLogin(c *gin.Context) {
 	verify := store.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, true)
 	if !verify {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "验证码错误",
+			"msg": "smscode is not right",
 		})
 		return
 	}
@@ -71,7 +71,7 @@ func PasswordLogin(c *gin.Context) {
 	// 3.1获取用户加密后的密码
 	userInfoResponse, err := global.UserClient.GetUserByMobile(context.WithValue(context.Background(), "ginContext", c), &proto.MobileRequest{Mobile: passwordLoginForm.Mobile})
 	if err != nil {
-		zap.S().Errorw("[GetUserByMobiles] 查询失败", "err", err.Error())
+		zap.S().Errorw("get user by mobile failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, c)
 	}
 	// 4.密码进行验证比对
@@ -80,16 +80,16 @@ func PasswordLogin(c *gin.Context) {
 		EncryptedPassword: userInfoResponse.Password,
 	})
 	if err != nil {
-		zap.S().Errorw("[CheckPassword] 密码验证失败")
+		zap.S().Errorw("check passwd failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, c)
 	}
 	// 5.根据获取的结果返回
 	if checkPasswordResponse.Success {
 		token, err := utils.GenerateToken(uint(userInfoResponse.Id), userInfoResponse.NickName, uint(userInfoResponse.Role))
 		if err != nil {
-			zap.S().Errorw("生成token失败", "err:", err.Error())
+			zap.S().Errorw("generate token failed", "err:", err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"msg": "生成token失败",
+				"msg": "generate token failed",
 			})
 			return
 		}
@@ -101,7 +101,7 @@ func PasswordLogin(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "登录失败",
+			"msg": "login failed",
 		})
 	}
 }
@@ -119,16 +119,16 @@ func Register(c *gin.Context) {
 	// 2.通过redis 验证 验证码是否正确
 	value, err := global.RedisClient.Get(context.Background(), registerForm.Mobile).Result()
 	if err == redis.Nil { // redis中没有验证码
-		zap.S().Warnw("can not find code in redis", "用户手机号", registerForm.Mobile)
+		zap.S().Warnw("can not find code in redis", "mobile num", registerForm.Mobile)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "验证码错误",
+			"msg": "code error",
 		})
 		return
 	} else { // 验证码错误
 		if value != registerForm.Code {
 			zap.S().Warnw("code not match", "mobile:", registerForm.Mobile, "rediscode:", value, "code:", " registerForm.Code ")
 			c.JSON(http.StatusBadRequest, gin.H{
-				"msg": "验证码错误",
+				"msg": "code error",
 			})
 			return
 		}
@@ -139,15 +139,15 @@ func Register(c *gin.Context) {
 		Mobile:   registerForm.Mobile,
 	})
 	if err != nil {
-		zap.S().Errorw("[CreateUser] 失败", "err", err.Error())
+		zap.S().Errorw("create user failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, c)
 		return
 	}
 	token, err := utils.GenerateToken(uint(userResponse.Id), userResponse.NickName, uint(userResponse.Role))
 	if err != nil {
-		zap.S().Errorw("生成token失败", "err:", err.Error())
+		zap.S().Errorw("generate token failed", "err:", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"msg": "生成token失败",
+			"msg": "generate token failed",
 		})
 		return
 	}
