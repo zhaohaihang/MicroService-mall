@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,7 +10,7 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/zhaohaihang/user_api/forms"
 	"github.com/zhaohaihang/user_api/global"
-	"github.com/zhaohaihang/user_api/global/response"
+	"github.com/zhaohaihang/user_api/response"
 	"github.com/zhaohaihang/user_api/proto"
 	"go.uber.org/zap"
 
@@ -20,22 +19,22 @@ import (
 
 // GetUserList 获取用户列表
 func GetUserList(c *gin.Context) {
-	// 0.从http请求中获取参数
+	// 1.获取参数
 	pageNum := c.DefaultQuery("page", "0")
 	pageNumInt, _ := strconv.Atoi(pageNum)
 	pageSize := c.DefaultQuery("size", "10")
 	pageSizeInt, _ := strconv.Atoi(pageSize)
-	// 1.调用rpc服务
+	// 2.调用rpc服务
 	resp, err := global.UserClient.GetUserList(context.WithValue(context.Background(), "ginContext", c), &proto.PageInfoRequest{
 		PageNum:  uint32(pageNumInt),
 		PageSize: uint32(pageSizeInt),
 	})
 	if err != nil {
-		zap.S().Errorw("[GetUserList] 查询 【用户列表】 失败", "msg", err.Error())
+		zap.S().Errorw("[GetUserList] get user list failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, c)
 		return
 	}
-	// 2.返回查询结果
+	// 3.返回查询结果
 	result := make([]interface{}, 0)
 	for _, value := range resp.Data {
 		user := response.UserResponse{
@@ -113,21 +112,21 @@ func Register(c *gin.Context) {
 	registerForm := forms.RegisterForm{}
 	err := c.ShouldBind(&registerForm)
 	if err != nil {
-
-		fmt.Println("c.ShouldBind error", err.Error())
+		zap.S().Errorw("bind error", "err", err.Error())
 		utils.HandleValidatorError(c, err)
 		return
 	}
 	// 2.通过redis 验证 验证码是否正确
 	value, err := global.RedisClient.Get(context.Background(), registerForm.Mobile).Result()
 	if err == redis.Nil { // redis中没有验证码
-		zap.S().Warnw("验证码发送/redis存储失败", "用户手机号", registerForm.Mobile)
+		zap.S().Warnw("can not find code in redis", "用户手机号", registerForm.Mobile)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"msg": "验证码错误",
 		})
 		return
 	} else { // 验证码错误
 		if value != registerForm.Code {
+			zap.S().Warnw("code not match", "mobile:", registerForm.Mobile, "rediscode:", value, "code:", " registerForm.Code ")
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": "验证码错误",
 			})

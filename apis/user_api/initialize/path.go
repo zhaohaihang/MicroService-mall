@@ -9,10 +9,10 @@ import (
 )
 
 // InitFilePath 初始化全局文件路径
-func InitFilePath() {
+func InitFilePath(nacosConfig string) {
 	basePath := getCurrentAbPathByCaller()
 	global.FileConfig = &config.FileConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-"+nacosConfig+".yaml",
 		LogFile:    basePath + "/log",
 	}
 }

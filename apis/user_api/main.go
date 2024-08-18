@@ -12,11 +12,12 @@ import (
 
 func main() {
 	Mode := flag.String("mode", "release", "mode debug / release ")
+	nacosConfig := flag.String("nacosConfig","home","home / com")
 	flag.Parse()
-	initialize.InitFilePath()
+
+	initialize.InitFilePath(*nacosConfig)
 	initialize.InitLogger()
 	initialize.InitConfig()
-	// initialize.InitLogger()
 	initialize.InitTranslator("zh")
 	initialize.InitValidator()
 	initialize.InitRedis()
