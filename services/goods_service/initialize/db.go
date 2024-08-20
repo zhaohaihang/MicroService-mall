@@ -19,15 +19,18 @@ import (
 // @Description: 初始化DB
 func InitDB() {
 	var err error
-	MySqlInfo := global.ServiceConfig.MySqlInfo
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", MySqlInfo.User, MySqlInfo.Password, MySqlInfo.Host, MySqlInfo.Port, MySqlInfo.Name)
-	// 创建日志文件
+	MysqlInfo := global.ServiceConfig.MySqlInfo
+	user := MysqlInfo.User
+	password := MysqlInfo.Password
+	name := MysqlInfo.Name
+	host := MysqlInfo.Host
+	port := MysqlInfo.Port
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, name)
 	newLogger := logger.New(log.New(logFileWriter, "\r\n", log.LstdFlags), logger.Config{
 		SlowThreshold: time.Second,
 		LogLevel:      logger.Info,
 		Colorful:      false,
 	})
-
 	global.DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})

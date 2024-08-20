@@ -15,9 +15,7 @@ import (
 
 // InitConfig 初始化配置
 func InitConfig() {
-	// 获得配置文件路径
 	configFileName := fmt.Sprintf(global.FilePath.ConfigFile)
-	// 生成viper, 读取nacos的配置
 	v := viper.New()
 	v.SetConfigFile(configFileName)
 	err := v.ReadInConfig()
@@ -30,14 +28,12 @@ func InitConfig() {
 		zap.S().Fatalw("unmarshal local nacos config failed: %s", "err", err.Error())
 	}
 	zap.S().Infof("local nacos config is :%v",global.NacosConfig)
-	// 连接nacos
-	sConfig := []constant.ServerConfig{
-		{
-			IpAddr: global.NacosConfig.Host,
-			Port:   uint64(global.NacosConfig.Port),
-		},
-	}
 
+	// 连接nacos
+	sConfig := []constant.ServerConfig{{
+		IpAddr: global.NacosConfig.Host,
+		Port:   uint64(global.NacosConfig.Port),
+	}}
 	cConfig := constant.ClientConfig{
 		NamespaceId:         global.NacosConfig.Namespace,
 		TimeoutMs:           5000,
@@ -53,14 +49,16 @@ func InitConfig() {
 	if err != nil {
 		zap.S().Fatalw("create nacos client failed: %s", "err", err.Error())
 	}
+
+	// 从nacos拉取配置
 	content, err := client.GetConfig(vo.ConfigParam{
 		DataId: global.NacosConfig.Dataid,
 		Group:  global.NacosConfig.Group,
 	})
 	if err != nil {
 		zap.S().Fatalw("pull goods sercice config from nacos failed", "err", err.Error())
-		return
 	}
+
 	global.ServiceConfig = &config.ServiceConfig{}
 	err = json.Unmarshal([]byte(content), global.ServiceConfig)
 	if err != nil {
@@ -70,8 +68,8 @@ func InitConfig() {
 
 	//监听配置修改
 	err = client.ListenConfig(vo.ConfigParam{
-		DataId: "goods_service.json",
-		Group:  "dev",
+		DataId: global.NacosConfig.Dataid,
+		Group:  global.NacosConfig.Group,
 		OnChange: func(namespace, group, dataId, data string) {
 			// TODO 配置变化时，应该重新反序列化，并且重新初始化一些公共资源
 		},

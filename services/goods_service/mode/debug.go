@@ -4,22 +4,21 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/zhaohaihang/goods_service/global"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
-func DebugMode(server *grpc.Server, ip string) {
-	// proto.RegisterGoodsServer(server, &handler.GoodsServer{})
-	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ip, global.Port))
+func DebugMode(server *grpc.Server, ip string, port int) {
+
+	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ip, port))
 	if err != nil {
-		zap.S().Errorw("net.Listen错误", "err", err.Error())
+		zap.S().Errorw("net.Listen failed", "err", err.Error())
 		return
 	}
-	zap.S().Infof("服务启动成功 端口 %s:%d", ip, global.Port)
+	zap.S().Infof("service start success ,port %s:%d", ip, port)
 	err = server.Serve(listen)
 	if err != nil {
-		zap.S().Errorw("server.Serve错误", "err", err.Error())
+		zap.S().Errorw("server.Serve failed", "err", err.Error())
 		return
 	}
 }

@@ -21,13 +21,7 @@ type Result struct {
 	ID int32
 }
 
-// GoodsList
-// @Description: 获取商品列表
-// @receiver g
-// @param ctx
-// @param GoodsListRequest
-// @return GoodsListResponse
-// @return err
+// GoodsList 获取商品列表
 func (g *GoodsServer) GoodsList(ctx context.Context, request *proto.GoodsFilterRequest) (*proto.GoodsListResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "GoodsList", "request", request)
 
@@ -134,13 +128,7 @@ func (g *GoodsServer) GoodsList(ctx context.Context, request *proto.GoodsFilterR
 	return response, nil
 }
 
-// BatchGetGoods
-// @Description:批量获取商品信息
-// @receiver g
-// @param ctx
-// @param request
-// @return response
-// @return err
+// BatchGetGoods 批量获取商品信息
 func (g *GoodsServer) BatchGetGoods(ctx context.Context, request *proto.BatchGoodsIdInfo) (*proto.GoodsListResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "BatchGetGoods", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
@@ -160,13 +148,7 @@ func (g *GoodsServer) BatchGetGoods(ctx context.Context, request *proto.BatchGoo
 	return response, nil
 }
 
-// CreateGoods
-// @Description: 创建商品
-// @receiver g
-// @param ctx
-// @param request
-// @return response
-// @return err
+// CreateGoods 创建商品
 func (g *GoodsServer) CreateGoods(ctx context.Context, request *proto.CreateGoodsInfo) (*proto.GoodsInfoResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "CreateGoods", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)

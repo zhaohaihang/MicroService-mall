@@ -40,6 +40,7 @@ func (g *GoodsServer) BrandList(ctx context.Context, request *proto.BrandFilterR
 		brandList = append(brandList, &brandResponse)
 	}
 	response.Data = brandList
+	
 	brandListSpan.Finish()
 	return response, nil
 }
@@ -47,9 +48,10 @@ func (g *GoodsServer) BrandList(ctx context.Context, request *proto.BrandFilterR
 // CreateBrand 创建品牌
 func (g *GoodsServer) CreateBrand(ctx context.Context, request *proto.BrandRequest) (*proto.BrandInfoResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "CreateBrand", "request", request)
+	
 	parentSpan := opentracing.SpanFromContext(ctx)
 	createBrand := opentracing.GlobalTracer().StartSpan("CreateBrand", opentracing.ChildOf(parentSpan.Context()))
-	response := &proto.BrandInfoResponse{}
+	
 	result := global.DB.Where("name=?", request.Name).First(&model.Brand{})
 	if result.RowsAffected == 1 {
 		return nil, status.Errorf(codes.InvalidArgument, "brand has exists")
@@ -59,11 +61,15 @@ func (g *GoodsServer) CreateBrand(ctx context.Context, request *proto.BrandReque
 		Logo: request.Logo,
 	}
 	zap.S().Infof("create brand %#v", brand)
+	
 	global.DB.Create(&brand)
 	createBrand.Finish()
-	response.Id = brand.ID
-	response.Name = brand.Name
-	response.Logo = brand.Logo
+	response := &proto.BrandInfoResponse{
+		Id:   brand.ID,
+		Name: brand.Name,
+		Logo: brand.Logo,
+	}
+	
 	return response, nil
 }
 
@@ -85,7 +91,6 @@ func (g *GoodsServer) DeleteBrand(ctx context.Context, request *proto.BrandReque
 }
 
 // UpdateBrand 更新品牌信息
-
 func (g *GoodsServer) UpdateBrand(ctx context.Context, request *proto.BrandRequest) (*proto.BrandInfoResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "UpdateBrand", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)

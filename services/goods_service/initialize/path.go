@@ -15,7 +15,7 @@ func InitFileAbsPath(cfgOption string) {
 		ConfigFile: basePath + "/config-"+cfgOption+".yaml",
 		LogFile:    basePath + "/log",
 	}
-	fmt.Println("文件路径初始化成功:", basePath)
+	fmt.Println("file path init success:", basePath)
 }
 
 func getCurrentAbsolutePath() string {
