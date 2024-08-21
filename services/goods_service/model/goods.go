@@ -2,17 +2,16 @@ package model
 
 import (
 	"context"
-	"go.uber.org/zap"
-	"github.com/zhaohaihang/goods_service/global"
-	"gorm.io/gorm"
 	"strconv"
+
+	"github.com/zhaohaihang/goods_service/global"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
-// Category
-// @Description: 目录表结构
-//
+// Category  目录表结构
 type Category struct {
-	BaseModel
+	gorm.Model
 	Name             string      `gorm:"type:varchar(20);not null" json:"name"`
 	ParentCategoryID int32       `json:"parent"`
 	ParentCategory   *Category   `json:"-"`
@@ -21,20 +20,14 @@ type Category struct {
 	IsTab            bool        `gorm:"default:false;not null" json:"is_tab"`
 }
 
-// TableName
-// @Description: 自定义表名
-// @receiver Category
-// @return string
-//
+// TableName 自定义表名
 func (Category) TableName() string {
 	return "category"
 }
 
-// Brands
-// @Description: 品牌表结构
-//
+// Brands 品牌表结构
 type Brand struct {
-	BaseModel
+	gorm.Model
 	Name string `gorm:"type:varchar(50);not null"`
 	Logo string `gorm:"type:varchar(200);default:'';not null"`
 }
@@ -43,11 +36,9 @@ func (Brand) TableName() string {
 	return "brands"
 }
 
-// GoodsCategoryBrand
-// @Description: 商品目录表结构
-//
+// GoodsCategoryBrand 商品目录表结构
 type GoodsCategoryBrand struct {
-	BaseModel
+	gorm.Model
 	CategoryID int32 `gorm:"type:int;index:idx_category_brand,unique"`
 	Category   Category
 
@@ -55,39 +46,27 @@ type GoodsCategoryBrand struct {
 	Brand   Brand
 }
 
-// TableName
-// @Description: 自定义表名
-// @receiver GoodsCategoryBrand
-// @return string
-//
+// TableName 自定义表名
 func (GoodsCategoryBrand) TableName() string {
 	return "goodscategorybrand"
 }
 
-// Banner
-// @Description: 横幅表结构
-//
+// Banner 横幅表结构
 type Banner struct {
-	BaseModel
+	gorm.Model
 	Image string `gorm:"type:varchar(200);not null"`
 	Url   string `gorm:"type:varchar(200);not null"`
 	Index int32  `gorm:"type:int;default:1;not null"`
 }
 
-// TableName
-// @Description: 自定义表名
-// @receiver Banner
-// @return string
-//
+// TableName 自定义表名
 func (Banner) TableName() string {
 	return "banner"
 }
 
-// Goods
-// @Description: 商品表结构
-//
+// Goods 商品表结构
 type Goods struct {
-	BaseModel
+	gorm.Model
 
 	CategoryID int32 `gorm:"type:int;not null"`
 	Category   Category
@@ -115,7 +94,7 @@ type Goods struct {
 
 func (g *Goods) AfterCreate(tx *gorm.DB) (err error) {
 	esModel := EsGoods{
-		ID:          g.ID,
+		ID:          int32(g.ID),
 		CategoryID:  g.CategoryID,
 		BrandsID:    g.BrandID,
 		OnSale:      g.OnSale,
@@ -140,7 +119,7 @@ func (g *Goods) AfterCreate(tx *gorm.DB) (err error) {
 
 func (g *Goods) AfterUpdate(tx *gorm.DB) (err error) {
 	esModel := EsGoods{
-		ID:          g.ID,
+		ID:          int32(g.ID),
 		CategoryID:  g.CategoryID,
 		BrandsID:    g.BrandID,
 		OnSale:      g.OnSale,

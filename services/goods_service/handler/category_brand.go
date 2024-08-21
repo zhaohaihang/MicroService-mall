@@ -34,14 +34,14 @@ func (g *GoodsServer) CategoryBrandList(ctx context.Context, request *proto.Cate
 	for _, categoryBrand := range categoryBrands {
 		categroyBrandsResponse = append(categroyBrandsResponse, &proto.CategoryBrandResponse{
 			Category: &proto.CategoryInfoResponse{
-				Id:             categoryBrand.Category.ID,
+				Id:             int32(categoryBrand.Category.ID),
 				Name:           categoryBrand.Category.Name,
 				ParentCategory: categoryBrand.Category.ParentCategoryID,
 				Level:          categoryBrand.Category.Level,
 				IsTab:          categoryBrand.Category.IsTab,
 			},
 			Brand: &proto.BrandInfoResponse{
-				Id:   categoryBrand.Brand.ID,
+				Id:   int32(categoryBrand.Brand.ID),
 				Name: categoryBrand.Brand.Name,
 				Logo: categoryBrand.Brand.Logo,
 			},
@@ -74,7 +74,7 @@ func (g GoodsServer) GetCategoryBrandList(ctx context.Context, request *proto.Ca
 	var brandInfoResponse []*proto.BrandInfoResponse
 	for _, categoryBrand := range categoryBrands {
 		brandInfoResponse = append(brandInfoResponse, &proto.BrandInfoResponse{
-			Id:   categoryBrand.Brand.ID,
+			Id:   int32(categoryBrand.Brand.ID),
 			Name: categoryBrand.Brand.Name,
 			Logo: categoryBrand.Brand.Logo,
 		})
@@ -108,7 +108,7 @@ func (g *GoodsServer) CreateCategoryBrand(ctx context.Context, request *proto.Ca
 	}
 	global.DB.Save(&categoryBrand)
 	CreateCategoryBrandSpan.Finish()
-	response.Id = categoryBrand.ID
+	response.Id = int32(categoryBrand.ID)
 	return response, nil
 }
 

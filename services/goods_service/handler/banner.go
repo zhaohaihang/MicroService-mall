@@ -20,16 +20,16 @@ func (g *GoodsServer) BannerList(ctx context.Context, request *emptypb.Empty) (*
 	
 	parentSpan := opentracing.SpanFromContext(ctx)
 	bannerListSpan := opentracing.GlobalTracer().StartSpan("BannerList", opentracing.ChildOf(parentSpan.Context()))
+	defer bannerListSpan.Finish()
+
+	bannerListResponse := &proto.BannerListResponse{}
 	banners := []model.Banner{}
 	result := global.DB.Find(&banners)
-	bannerListSpan.Finish()
-	
-	bannerListResponse := &proto.BannerListResponse{}
 	bannerListResponse.Total = int32(result.RowsAffected)
 	for _, banner := range banners {
 		bannerListResponse.Data = append(bannerListResponse.Data, utils.BannerToBannerResponse(&banner))
 	}
-	
+
 	return bannerListResponse, nil
 }
 
@@ -37,22 +37,22 @@ func (g *GoodsServer) BannerList(ctx context.Context, request *emptypb.Empty) (*
 func (g *GoodsServer) CreateBanner(ctx context.Context, request *proto.BannerRequest) (*proto.BannerResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "CreateBanner", "request", request)
 	
+	parentSpan := opentracing.SpanFromContext(ctx)
+	createBannerSpan := opentracing.GlobalTracer().StartSpan("CreateBanner", opentracing.ChildOf(parentSpan.Context()))
+	defer createBannerSpan.Finish()
+
 	banner :=  model.Banner{
 		Image: request.Image,
 		Index: request.Index,
 		Url: request.Url,
 	}
-
-	parentSpan := opentracing.SpanFromContext(ctx)
-	createBannerSpan := opentracing.GlobalTracer().StartSpan("CreateBanner", opentracing.ChildOf(parentSpan.Context()))
 	result := global.DB.Create(&banner)
 	if result.Error != nil {
 		zap.S().Errorw("create banner failed", "err", result.Error.Error())
 		return nil, result.Error
 	}
-	createBannerSpan.Finish()
 
-	bannerResponse :=utils.BannerToBannerResponse(&banner)
+	bannerResponse := utils.BannerToBannerResponse(&banner)
 	return bannerResponse, nil
 }
 
@@ -62,9 +62,9 @@ func (g *GoodsServer) DeleteBanner(ctx context.Context, request *proto.BannerReq
 	
 	parentSpan := opentracing.SpanFromContext(ctx)
 	deleteBannerSpan := opentracing.GlobalTracer().StartSpan("DeleteBanner", opentracing.ChildOf(parentSpan.Context()))
-	result := global.DB.Delete(&model.Banner{}, request.Id)
-	deleteBannerSpan.Finish()
+	defer deleteBannerSpan.Finish()
 
+	result := global.DB.Delete(&model.Banner{}, request.Id)
 	response := &proto.OperationResult{
 		Success: true,
 	}
@@ -82,6 +82,7 @@ func (g *GoodsServer) UpdateBanner(ctx context.Context, request *proto.BannerReq
 	
 	parentSpan := opentracing.SpanFromContext(ctx)
 	updateBannerSpan := opentracing.GlobalTracer().StartSpan("UpdateBanner", opentracing.ChildOf(parentSpan.Context()))
+	defer updateBannerSpan.Finish()
 
 	var banner model.Banner
 	result := global.DB.First(&banner, request.Id)
@@ -101,7 +102,6 @@ func (g *GoodsServer) UpdateBanner(ctx context.Context, request *proto.BannerReq
 	if result.RowsAffected != 1 {
 		return nil, result.Error
 	}
-	updateBannerSpan.Finish()
 
 	bannerResponse :=utils.BannerToBannerResponse(&banner)
 	return bannerResponse, nil

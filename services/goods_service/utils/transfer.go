@@ -7,7 +7,7 @@ import (
 
 func BannerToBannerResponse(banner *model.Banner) *proto.BannerResponse {
 	return &proto.BannerResponse{
-		Id:    banner.ID,
+		Id:    int32(banner.ID),
 		Index: banner.Index,
 		Image: banner.Image,
 		Url:   banner.Url,
@@ -16,7 +16,7 @@ func BannerToBannerResponse(banner *model.Banner) *proto.BannerResponse {
 
 func ModelToResponse(goods *model.Goods) proto.GoodsInfoResponse {
 	return proto.GoodsInfoResponse{
-		Id:              goods.ID,
+		Id:              int32(goods.ID),
 		CategoryId:      goods.CategoryID,
 		Name:            goods.Name,
 		GoodsSn:         goods.GoodsSn,
@@ -34,11 +34,11 @@ func ModelToResponse(goods *model.Goods) proto.GoodsInfoResponse {
 		DescImages:      goods.DescImages,
 		Images:          goods.Images,
 		Category: &proto.CategoryBriefInfoResponse{
-			Id:   goods.Category.ID,
+			Id:   int32(goods.Category.ID),
 			Name: goods.Category.Name,
 		},
 		Brand: &proto.BrandInfoResponse{
-			Id:   goods.Brand.ID,
+			Id:   int32(goods.Brand.ID),
 			Name: goods.Brand.Name,
 			Logo: goods.Brand.Logo,
 		},

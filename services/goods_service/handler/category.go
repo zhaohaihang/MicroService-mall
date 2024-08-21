@@ -48,7 +48,7 @@ func (g *GoodsServer) GetSubCategory(ctx context.Context, request *proto.Categor
 		return nil, status.Errorf(codes.NotFound, "商品分类不存在")
 	}
 	response.Info = &proto.CategoryInfoResponse{
-		Id:             category.ID,
+		Id:             int32(category.ID),
 		Name:           category.Name,
 		ParentCategory: category.ParentCategoryID,
 		Level:          category.Level,
@@ -61,7 +61,7 @@ func (g *GoodsServer) GetSubCategory(ctx context.Context, request *proto.Categor
 	getSubCategorySpan.Finish()
 	for _, subCategory := range subCategorys {
 		subCategorysResponse = append(subCategorysResponse, &proto.CategoryInfoResponse{
-			Id:             subCategory.ID,
+			Id:             int32(subCategory.ID),
 			Name:           subCategory.Name,
 			ParentCategory: subCategory.ParentCategoryID,
 			Level:          subCategory.Level,
@@ -91,7 +91,7 @@ func (g *GoodsServer) CreateCategory(ctx context.Context, request *proto.Categor
 		return nil, result.Error
 	}
 	createCategorySpan.Finish()
-	response.Id = category.ID
+	response.Id = int32(category.ID)
 	response.IsTab = category.IsTab
 	response.Level = category.Level
 	response.Name = category.Name
@@ -147,7 +147,7 @@ func (g *GoodsServer) UpdateCategory(ctx context.Context, request *proto.Categor
 		return nil, result.Error
 	}
 	UpdateCategorySpan.Finish()
-	response.Id = category.ID
+	response.Id = int32(category.ID)
 	response.Name = category.Name
 	response.Level = category.Level
 	response.IsTab = category.IsTab

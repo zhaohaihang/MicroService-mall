@@ -167,9 +167,9 @@ func (g *GoodsServer) CreateGoods(ctx context.Context, request *proto.CreateGood
 	//这里没有看到图片文件是如何上传， 在微服务中 普通的文件上传已经不再使用
 	goods := model.Goods{
 		Brand:           brand,
-		BrandID:         brand.ID,
+		BrandID:         int32(brand.ID),
 		Category:        category,
-		CategoryID:      category.ID,
+		CategoryID:      int32(category.ID),
 		Name:            request.Name,
 		GoodsSn:         request.GoodsSn,
 		MarketPrice:     request.MarketPrice,
@@ -196,7 +196,7 @@ func (g *GoodsServer) DeleteGoods(ctx context.Context, request *proto.DeleteGood
 	parentSpan := opentracing.SpanFromContext(ctx)
 	deleteGoodsSpan := opentracing.GlobalTracer().StartSpan("DeleteGoods", opentracing.ChildOf(parentSpan.Context()))
 	response := &proto.OperationResult{}
-	result := global.DB.Delete(&model.Goods{BaseModel: model.BaseModel{ID: request.Id}}, request.Id)
+	result := global.DB.Delete(&model.Goods{}, request.Id)
 	if result.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "商品不存在")
 	}
@@ -227,9 +227,9 @@ func (g GoodsServer) UpdateGoods(ctx context.Context, request *proto.CreateGoods
 	}
 	updateGoodsSpan.Finish()
 	goods.Brand = brand
-	goods.BrandID = brand.ID
+	goods.BrandID = int32(brand.ID)
 	goods.Category = category
-	goods.CategoryID = category.ID
+	goods.CategoryID = int32(category.ID)
 	goods.Name = request.Name
 	goods.GoodsSn = request.GoodsSn
 	goods.MarketPrice = request.MarketPrice

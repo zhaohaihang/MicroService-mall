@@ -2,13 +2,8 @@ package utils
 
 import "gorm.io/gorm"
 
-// Paginate
-// @Description: 分页查询
-// @param page
-// @param pageSize
-// @return func(db *gorm.DB) *gorm.DB
-//
-func Paginate(page int, pageSize int) func(db *gorm.DB) *gorm.DB {
+// Paginate 分页查询
+func Paginate(page int, pageSize int) func(db *gorm.DB) *gorm.DB {  // 返回类型必须是func(*gorm.DB) *gorm.DB
 	return func(db *gorm.DB) *gorm.DB {
 		if page == 0 {
 			page = 1
