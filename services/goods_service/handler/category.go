@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/zhaohaihang/goods_service/global"
@@ -16,32 +15,38 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// GetAllCategoriesList 获取目录列表
+// GetAllCategoriesList 获取分类列表
 func (g *GoodsServer) GetAllCategoriesList(ctx context.Context, request *emptypb.Empty) (*proto.CategoryListResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "GetAllCategoriesList", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
 	getAllCategoriesListSpan := opentracing.GlobalTracer().StartSpan("GetAllCategoriesList", opentracing.ChildOf(parentSpan.Context()))
-	response := &proto.CategoryListResponse{}
+	defer getAllCategoriesListSpan.Finish()
 
 	var categorys []model.Category
 	global.DB.Where(&model.Category{Level: 1}).Preload("SubCategory.SubCategory").Find(&categorys)
-	getAllCategoriesListSpan.Finish()
+
 	b, err := json.Marshal(&categorys)
 	if err != nil {
-		zap.S().Errorw("json转换failed", "err", err.Error())
-		return nil, err
+		zap.S().Errorw("json Marshal failed", "err", err.Error())
+		return nil, status.Errorf(codes.Internal, "category is not exists")
 	}
-	response.JsonData = string(b)
+	response := &proto.CategoryListResponse{
+		JsonData: string(b),
+	}
 	return response, nil
 }
 
 // GetSubCategory 获取二级目录
 func (g *GoodsServer) GetSubCategory(ctx context.Context, request *proto.CategoryListRequest) (*proto.SubCategoryListResponse, error) {
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "GetSubCategory", "request", request)
+
 	parentSpan := opentracing.SpanFromContext(ctx)
 	getSubCategorySpan := opentracing.GlobalTracer().StartSpan("GetSubCategory", opentracing.ChildOf(parentSpan.Context()))
+	defer getSubCategorySpan.Finish()
+
 	response := &proto.SubCategoryListResponse{}
 
+	// 先获取一级目录
 	var category model.Category
 	result := global.DB.First(&category, request.Id)
 	if result.RowsAffected == 0 {
@@ -55,10 +60,10 @@ func (g *GoodsServer) GetSubCategory(ctx context.Context, request *proto.Categor
 		IsTab:          category.IsTab,
 	}
 
+	// 获取二级目录
 	var subCategorys []model.Category
 	var subCategorysResponse []*proto.CategoryInfoResponse
 	global.DB.Where(&model.Category{ParentCategoryID: request.Id}).Find(&subCategorys)
-	getSubCategorySpan.Finish()
 	for _, subCategory := range subCategorys {
 		subCategorysResponse = append(subCategorysResponse, &proto.CategoryInfoResponse{
 			Id:             int32(subCategory.ID),
@@ -77,7 +82,7 @@ func (g *GoodsServer) CreateCategory(ctx context.Context, request *proto.Categor
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "CreateCategory", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
 	createCategorySpan := opentracing.GlobalTracer().StartSpan("CreateCategory", opentracing.ChildOf(parentSpan.Context()))
-	response := &proto.CategoryInfoResponse{}
+	defer createCategorySpan.Finish()
 
 	var category model.Category
 	category.Name = request.Name
@@ -86,17 +91,17 @@ func (g *GoodsServer) CreateCategory(ctx context.Context, request *proto.Categor
 	}
 	result := global.DB.Create(&category)
 	if result.RowsAffected == 0 {
-		fmt.Println(result.Error)
-		zap.S().Errorw("创建目录失败", "err", result.Error)
+		zap.S().Errorw("create Category error ", "err", result.Error)
 		return nil, result.Error
 	}
-	createCategorySpan.Finish()
-	response.Id = int32(category.ID)
-	response.IsTab = category.IsTab
-	response.Level = category.Level
-	response.Name = category.Name
-	response.ParentCategory = category.ParentCategoryID
 
+	response := &proto.CategoryInfoResponse{
+		Id:             int32(category.ID),
+		IsTab:          category.IsTab,
+		Level:          category.Level,
+		Name:           category.Name,
+		ParentCategory: category.ParentCategoryID,
+	}
 	return response, nil
 }
 
@@ -105,14 +110,16 @@ func (g *GoodsServer) DeleteCategory(ctx context.Context, request *proto.DeleteC
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "DeleteCategory", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
 	deleteCategorySpan := opentracing.GlobalTracer().StartSpan("DeleteCategory", opentracing.ChildOf(parentSpan.Context()))
+	defer deleteCategorySpan.Finish()
+
 	response := &proto.OperationResult{}
 
 	result := global.DB.Delete(&model.Category{}, request.Id)
 	if result.RowsAffected == 0 {
 		response.Success = false
-		return response, status.Errorf(codes.NotFound, "商品分类不存在")
+		return response, status.Errorf(codes.NotFound, "Category is not exists")
 	}
-	deleteCategorySpan.Finish()
+
 	response.Success = true
 	return response, nil
 }
@@ -122,11 +129,12 @@ func (g *GoodsServer) UpdateCategory(ctx context.Context, request *proto.Categor
 	zap.S().Infow("Info", "service", SERVICE_NAME, "method", "UpdateCategory", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
 	UpdateCategorySpan := opentracing.GlobalTracer().StartSpan("UpdateCategory", opentracing.ChildOf(parentSpan.Context()))
-	response := &proto.CategoryInfoResponse{}
+	defer UpdateCategorySpan.Finish()
+
 	var category model.Category
 	result := global.DB.First(&category, request.Id)
 	if result.RowsAffected == 0 {
-		return nil, status.Errorf(codes.NotFound, "商品")
+		return nil, status.Errorf(codes.NotFound, "category is not exists")
 	}
 	if request.Name != "" {
 		category.Name = request.Name
@@ -142,14 +150,16 @@ func (g *GoodsServer) UpdateCategory(ctx context.Context, request *proto.Categor
 	}
 	result = global.DB.Save(&category)
 	if result.Error != nil {
-		zap.S().Errorw("更新目录失败", "err", result.Error)
-		fmt.Println(result.Error)
+		zap.S().Errorw("update category failed", "err", result.Error)
 		return nil, result.Error
 	}
-	UpdateCategorySpan.Finish()
-	response.Id = int32(category.ID)
-	response.Name = category.Name
-	response.Level = category.Level
-	response.IsTab = category.IsTab
+
+	response := &proto.CategoryInfoResponse{
+		Id:             int32(category.ID),
+		IsTab:          category.IsTab,
+		Level:          category.Level,
+		Name:           category.Name,
+		ParentCategory: category.ParentCategoryID,
+	}
 	return response, nil
 }
