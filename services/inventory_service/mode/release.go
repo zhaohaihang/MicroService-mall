@@ -40,8 +40,8 @@ func ReleaseMode(server *grpc.Server, ip string) {
 		zap.S().Errorw("create new consul client failed", "err", err.Error())
 		return
 	}
+
 	checkInfo := global.ServiceConfig.RegisterInfo
-	// 生成检查对象
 	check := &api.AgentServiceCheck{
 		GRPC:                           fmt.Sprintf("%s:%d", global.ServiceConfig.Host, global.FreePort),
 		GRPCUseTLS:                     false,

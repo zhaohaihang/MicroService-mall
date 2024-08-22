@@ -14,9 +14,7 @@ import (
 var dest io.Writer
 var logFileWriter io.Writer
 
-// InitLogger
-// @Description: 初始化Logger
-//
+// InitLogger 初始化Logger
 func InitLogger() {
 	writeSyncer := getLogWriter()
 	encoder := getEncoder()
