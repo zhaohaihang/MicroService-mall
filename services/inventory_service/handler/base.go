@@ -12,6 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var serviceName = "[Inventory_Service]"
+
 func AutoReback(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 	type OrderInfo struct {
 		OrderSn string
@@ -35,7 +37,7 @@ func AutoReback(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.Co
 
 		// 归还每个商品的库存
 		for _, orderGoods := range sellDetail.Details {
-			if result := tx.Model(&model.Inventory{}).Where(&model.Inventory{Goods: orderGoods.GoodsId}).Update("stocks", gorm.Expr("stocks+?", orderGoods.Num)); result.RowsAffected == 0 {
+			if result := tx.Model(&model.Inventory{}).Where(&model.Inventory{GoodsId: orderGoods.GoodsId}).Update("stocks", gorm.Expr("stocks+?", orderGoods.Num)); result.RowsAffected == 0 {
 				tx.Rollback()
 				return consumer.ConsumeRetryLater, nil
 			}

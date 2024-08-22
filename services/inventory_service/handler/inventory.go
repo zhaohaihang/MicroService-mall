@@ -17,36 +17,37 @@ import (
 	"time"
 )
 
-var serviceName = "【Inventory_Service】"
-
 type InventoryService struct {
 	proto.UnimplementedInventoryServer
 }
 
+// 设置商品库存
 func (i *InventoryService) SetInv(ctx context.Context, request *proto.GoodsInvInfo) (*empty.Empty, error) {
 	zap.S().Infow("Info", "service", serviceName, "method", "SetInv", "request", request)
 	parentSpan := opentracing.SpanFromContext(ctx)
 	setInventorySpan := opentracing.GlobalTracer().StartSpan("setInventory", opentracing.ChildOf(parentSpan.Context()))
+	defer setInventorySpan.Finish()
 
 	var inventory model.Inventory
-	global.DB.Where(&model.Inventory{Goods: request.GoodsId}).First(&inventory)
-	inventory.Goods = request.GoodsId
+	global.DB.Where(&model.Inventory{GoodsId: request.GoodsId}).First(&inventory)
+	inventory.GoodsId = request.GoodsId
 	inventory.Stocks = request.Num
 	global.DB.Save(&inventory)
 
-	setInventorySpan.Finish()
 	return &empty.Empty{}, nil
 }
 
+// 查询商品的库存
 func (i InventoryService) InvDetail(ctx context.Context, request *proto.GoodsInvInfo) (*proto.GoodsInvInfo, error) {
 	zap.S().Infow("Info", "service", serviceName, "method", "InvDetail", "request", request)
+	
 	parentSpan := opentracing.SpanFromContext(ctx)
 	inventoryDetailSpan := opentracing.GlobalTracer().StartSpan("inventoryDetailSpan", opentracing.ChildOf(parentSpan.Context()))
-	response := &proto.GoodsInvInfo{}
+	defer inventoryDetailSpan.Finish()
 
 	var inventory model.Inventory
 	result := global.DB.Where(&model.Inventory{
-		Goods: request.GoodsId,
+		GoodsId: request.GoodsId,
 	}).First(&inventory)
 	if result.RowsAffected == 0 {
 		zap.S().Errorw("global.DB.First result = 0", "err", "goods Inventory info not exists")
@@ -56,10 +57,11 @@ func (i InventoryService) InvDetail(ctx context.Context, request *proto.GoodsInv
 		zap.S().Errorw("global.DB.First result error", "err", result.Error)
 		return nil, status.Errorf(codes.Internal, "database error")
 	}
-	response.Num = inventory.Stocks
-	response.GoodsId = inventory.Goods
+	response := &proto.GoodsInvInfo{
+		Num: inventory.Stocks,
+		GoodsId: inventory.GoodsId,
+	}
 
-	inventoryDetailSpan.Finish()
 	return response, nil
 }
 
@@ -88,7 +90,7 @@ func (i *InventoryService) Sell(ctx context.Context, request *proto.SellInfo) (*
 
 		var inventory model.Inventory
 		result := global.DB.Where(&model.Inventory{
-			Goods: goodInfo.GoodsId,
+			GoodsId: goodInfo.GoodsId,
 		}).First(&inventory)
 		if result.RowsAffected == 0 {
 			return nil, status.Errorf(codes.NotFound, "商品库存信息不存在")
@@ -136,7 +138,7 @@ func (i *InventoryService) ReBack(ctx context.Context, request *proto.SellInfo) 
 	for _, goodsInvInfo := range request.GoodsInfo {
 		var inventory model.Inventory
 		result := global.DB.Where(&model.Inventory{
-			Goods: goodsInvInfo.GoodsId,
+			GoodsId: goodsInvInfo.GoodsId,
 		}).First(&inventory)
 		if result.RowsAffected == 0 {
 			tx.Rollback()
