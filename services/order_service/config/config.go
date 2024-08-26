@@ -6,8 +6,8 @@ type FilePathConfig struct {
 }
 
 type ServiceConfig struct {
-	Name                 string `json:"name"`
-	Host                 string `json:"host"`
+	Name                 string                 `json:"name"`
+	Host                 string                 `json:"host"`
 	MysqlInfo            MysqlConfig            `json:"mysql"`
 	ConsulInfo           ConsulConfig           `json:"consul"`
 	RedisInfo            RedisConfig            `json:"redis"`
@@ -18,9 +18,9 @@ type ServiceConfig struct {
 	RocketMQInfo         RocketMQConfig         `json:"rocketmq"`
 }
 
-type RocketMQConfig struct{
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
+type RocketMQConfig struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
 }
 
 type NacosConfig struct {

@@ -8,10 +8,10 @@ import (
 	"runtime"
 )
 
-func InitFileAbsPath() {
+func InitFileAbsPath(nacosConfig string) {
 	basePath := getCurrentAbsplutePath()
 	global.FilePath = &config.FilePathConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-"+nacosConfig+".yaml",
 		LogFile:    basePath + "/log",
 	}
 	fmt.Println("file path init success:", basePath)

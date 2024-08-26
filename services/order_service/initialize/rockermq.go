@@ -7,6 +7,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/zhaohaihang/order_service/global"
 	"github.com/zhaohaihang/order_service/handler"
+	"go.uber.org/zap"
 )
 
 func InitRocketMq() {
@@ -19,7 +20,7 @@ func InitRocketMq() {
 	)
 
 	if err := c.Subscribe("order_timeout", consumer.MessageSelector{}, handler.OrderTimeout); err != nil {
-		fmt.Println("读取消息失败")
+		zap.S().Errorf("Subscribe  order_timeout msg error\n")
 	}
 	_ = c.Start()
 

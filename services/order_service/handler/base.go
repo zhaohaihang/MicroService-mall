@@ -20,7 +20,7 @@ type OrderService struct {
 }
 
 const (
-	SERVICE_NAME = "[order_service]"
+	serviceName = "[order_service]"
 )
 
 func OrderTimeout(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
