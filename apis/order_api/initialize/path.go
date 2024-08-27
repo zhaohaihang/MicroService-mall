@@ -2,16 +2,17 @@ package initialize
 
 import (
 	"fmt"
-	"github.com/zhaohaihang/order_api/config"
-	"github.com/zhaohaihang/order_api/global"
 	"path"
 	"runtime"
+
+	"github.com/zhaohaihang/order_api/config"
+	"github.com/zhaohaihang/order_api/global"
 )
 
-func InitFileAbsPath() {
+func InitFileAbsPath(configFile string) {
 	basePath := getCurrentAbsolutePath()
 	global.FilePathConfig = &config.FilePathConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-" + configFile + ".yaml",
 		LogFile:    basePath + "/log",
 	}
 	fmt.Println("init success:", basePath)

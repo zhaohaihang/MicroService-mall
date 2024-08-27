@@ -20,10 +20,10 @@ func InitRouters() {
 	router.InitShopCartRouter(ApiGroup)
 	zap.S().Infow("init order_api router success")
 
-	zap.S().Infof("start user api")
+	zap.S().Infof("start order_api")
 	err := Router.Run(fmt.Sprintf("0.0.0.0:%d", global.Port))
 	if err != nil {
-		panic(err)
+		zap.S().Errorw("run order api router failed", "err", err.Error())
 	}
 
 }

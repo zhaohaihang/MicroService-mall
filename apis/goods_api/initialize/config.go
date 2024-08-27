@@ -74,8 +74,8 @@ func InitConfig() {
 
 	//监听配置修改
 	err = client.ListenConfig(vo.ConfigParam{
-		DataId: "goods_api.json",
-		Group:  "dev",
+		DataId: global.NacosConfig.Dataid,
+		Group:  global.NacosConfig.Group,
 		OnChange: func(namespace, group, dataId, data string) {
 			// TODO 配置变化时，应该重新反序列化，并且重新初始化一些公共资源
 		},

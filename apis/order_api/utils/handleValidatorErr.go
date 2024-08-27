@@ -17,5 +17,4 @@ func HandleValidatorError(c *gin.Context, err error) {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"error": RemoveTopStruct(errs.Translate(global.Translator)),
 	})
-	return
 }

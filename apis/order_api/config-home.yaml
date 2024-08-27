@@ -1,0 +1,7 @@
+host: '192.168.30.3'
+port: 8848
+namespace: '2713ea5d-17b2-4670-8553-3c639636e397'
+user: "nacos"
+password: "zhaohaihang"
+dataid: "order_api.json"
+group: "dev"

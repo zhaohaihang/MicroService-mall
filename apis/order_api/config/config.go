@@ -16,12 +16,12 @@ type FilePathConfig struct {
 }
 
 type ApiConfig struct {
-	Name             string `json:"name"`
-	Host             string  `json:"host"`
-	ServiceInfo 	Register     `json:"register"`
+	Name             string                 `json:"name"`
+	Host             string                 `json:"host"`
+	ServiceInfo      Register               `json:"register"`
 	ConsulInfo       ConsulConfig           `json:"consul"`
 	JWTInfo          JWTConfig              `json:"jwtConfig"`
-	OrderService 	 OrderServiceConfig	 	`json:"order_service"`
+	OrderService     OrderServiceConfig     `json:"order_service"`
 	GoodsService     GoodsServiceConfig     `json:"goods_service"`
 	InventoryService InventoryServiceConfig `json:"inventory_service"`
 	AlipayInfo       AlipayInfoConfig       `json:"alipay_info"`

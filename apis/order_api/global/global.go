@@ -7,12 +7,12 @@ import (
 )
 
 var (
-	FilePathConfig       *config.FilePathConfig
-	NacosConfig      *config.NacosConfig
-	ApiConfig 		 *config.ApiConfig
-	Translator       ut.Translator
-	OrderClient      proto.OrderClient
-	GoodsClient      proto.GoodsClient
-	InventoryClient  proto.InventoryClient
-	Port        int
+	FilePathConfig  *config.FilePathConfig
+	NacosConfig     *config.NacosConfig
+	ApiConfig       *config.ApiConfig
+	Translator      ut.Translator
+	OrderClient     proto.OrderClient
+	GoodsClient     proto.GoodsClient
+	InventoryClient proto.InventoryClient
+	Port            int
 )
