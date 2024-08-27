@@ -194,11 +194,11 @@ func (o *OrderListener) ExecuteLocalTransaction(msg *primitive.Message) primitiv
 	}
 	shopCartSpan.Finish()
 
-	var goodsIds []int32
+	goodsIds := []int32{}
 	goodsNumMap := make(map[int32]int32)
 	for _, shopCart := range shopCarts {
-		goodsIds = append(goodsIds, shopCart.GoodsId)
-		goodsNumMap[shopCart.GoodsId] = shopCart.Nums
+		goodsIds = append(goodsIds, shopCart.GoodsId)  // 记录被选中的商品号
+		goodsNumMap[shopCart.GoodsId] = shopCart.Nums  // 记录每个商品的数量
 	}
 
 	// 查询被选中的商品信息
@@ -284,25 +284,22 @@ func (o *OrderListener) ExecuteLocalTransaction(msg *primitive.Message) primitiv
 	deleteShopCartSpan.Finish()
 
 	//发送延时消息
-	p, err := rocketmq.NewProducer(producer.WithNameServer([]string{
-		fmt.Sprintf("%s:%d",
-			global.ServiceConfig.RocketMQInfo.Host,
-			global.ServiceConfig.RocketMQInfo.Port)}))
+	p, err := rocketmq.NewProducer(producer.WithNameServer([]string{fmt.Sprintf("%s:%d",global.ServiceConfig.RocketMQInfo.Host,global.ServiceConfig.RocketMQInfo.Port)}))
 	if err != nil {
 		zap.S().Fatalw("gen name producer failed")
 	}
 	if err = p.Start(); err != nil {
-		panic("启动producer失败")
+		zap.S().Errorw("start producer failed")
 	}
 
 	msg = primitive.NewMessage("order_timeout", msg.Body)
 	msg.WithDelayTimeLevel(3)
 	_, err = p.SendSync(context.Background(), msg)
 	if err != nil {
-		zap.S().Errorf("发送延时消息失败: %v\n", err)
+		zap.S().Errorf("send order_timeout msg failed: %v\n", err)
 		tx.Rollback()
 		o.Code = codes.Internal
-		o.Detail = "发送延时消息失败"
+		o.Detail = "send order_timeout msg failed"
 		return primitive.CommitMessageState
 	}
 
