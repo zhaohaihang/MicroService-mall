@@ -2,28 +2,32 @@ package order
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/smartwalle/alipay/v3"
-	"go.uber.org/zap"
-	"net/http"
 	"github.com/zhaohaihang/order_api/forms"
 	"github.com/zhaohaihang/order_api/global"
 	"github.com/zhaohaihang/order_api/models"
 	"github.com/zhaohaihang/order_api/proto"
 	"github.com/zhaohaihang/order_api/utils"
-	"strconv"
+	"go.uber.org/zap"
 )
 
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	userId, _ := ctx.Get("userId")
 	claims, _ := ctx.Get("claims")
 
 	request := proto.OrderFilterRequest{}
-	// 管理员特殊处理
+	// 管理员验证
 	model := claims.(*models.CustomClaims)
 	if model.AuthorityId == 1 {
 		request.UserId = int32(userId.(uint))
@@ -39,12 +43,11 @@ func List(ctx *gin.Context) {
 
 	response, err := global.OrderClient.OrderList(context.WithValue(context.Background(), "ginContext", ctx), &request)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "获取订单列表失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "get order list faield", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
 	responseMap := gin.H{
-		// TODO:返回的总数为0
 		"total": response.Total,
 	}
 
@@ -75,32 +78,37 @@ func List(ctx *gin.Context) {
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	orderForm := forms.CreateOrderForm{}
 	err := ctx.ShouldBind(&orderForm)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "创建订单验证失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "order form bind failed", "err", err.Error())
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
+
 	userId, _ := ctx.Get("userId")
-	response, err := global.OrderClient.CreateOrder(context.WithValue(context.Background(), "ginContext", ctx), &proto.OrderRequest{
+	req := &proto.OrderRequest{
 		UserId:  int32(userId.(uint)),
 		Address: orderForm.Address,
 		Name:    orderForm.Name,
 		Mobile:  orderForm.Mobile,
 		Post:    orderForm.Post,
-	})
+	}
+	response, err := global.OrderClient.CreateOrder(context.WithValue(context.Background(), "ginContext", ctx),req )
 	if err != nil {
-		zap.S().Errorw("Error", "message", "创建订单服务失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "create order failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
 	// 生成支付宝支付URL
 	client, err := alipay.New(global.ApiConfig.AlipayInfo.AppID, global.ApiConfig.AlipayInfo.PrivateKey, false)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "实例化支付宝失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "create alipay client failed", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
@@ -108,24 +116,25 @@ func New(ctx *gin.Context) {
 	}
 	err = client.LoadAliPayPublicKey(global.ApiConfig.AlipayInfo.AliPublicKey)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "加载支付宝公钥失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "Load AliPayPublicKey failed", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	var p = alipay.TradePagePay{}
-	p.NotifyURL = global.ApiConfig.AlipayInfo.NotifyURL
-	p.ReturnURL = global.ApiConfig.AlipayInfo.ReturnURL
-	p.Subject = "order-" + response.OrderSn
-	p.OutTradeNo = response.OrderSn
-	p.TotalAmount = strconv.FormatFloat(float64(response.Total), 'f', 2, 64)
-	p.ProductCode = "FAST_INSTANT_TRADE_PAY"
+	var p = alipay.TradePagePay{Trade: alipay.Trade{
+		NotifyURL:   global.ApiConfig.AlipayInfo.NotifyURL,
+		ReturnURL:   global.ApiConfig.AlipayInfo.ReturnURL,
+		Subject:     "order-" + response.OrderSn,
+		OutTradeNo:  response.OrderSn,
+		TotalAmount: strconv.FormatFloat(float64(response.Total), 'f', 2, 64),
+		ProductCode: "FAST_INSTANT_TRADE_PAY",
+	}}
 
 	url, err := client.TradePagePay(p)
 	if err != nil {
-		zap.S().Errorw("生成支付url失败")
+		zap.S().Errorw("gen url failed")
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
@@ -142,30 +151,34 @@ func New(ctx *gin.Context) {
 func Detail(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	id := ctx.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "param参数id转换失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "param id tranfer failed", "err", err.Error())
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "url格式错误",
+			"message": "param is not right",
 		})
 		return
 	}
-	userId, _ := ctx.Get("userId")
-
+	
 	request := proto.OrderRequest{
 		Id: int32(idInt),
 	}
+
 	claims, _ := ctx.Get("claims")
 	model := claims.(*models.CustomClaims)
 	if model.AuthorityId == 1 {
+		userId, _ := ctx.Get("userId")
 		request.UserId = int32(userId.(uint))
 	}
 	response, err := global.OrderClient.OrderDetail(context.WithValue(context.Background(), "ginContext", ctx), &request)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "获取用户详情失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "get user's order info failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}

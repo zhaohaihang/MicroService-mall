@@ -18,3 +18,9 @@ func HandleValidatorError(c *gin.Context, err error) {
 		"error": RemoveTopStruct(errs.Translate(global.Translator)),
 	})
 }
+
+func HandleRequestFrequentError(c *gin.Context) {
+	c.JSON(http.StatusTooManyRequests, gin.H{
+		"msg": "Request too frequent",
+	})
+}

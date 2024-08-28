@@ -12,16 +12,15 @@ import (
 	"strconv"
 )
 
-// List
-// @Description: 获取购物车内商品列表
-// @param ctx
-//
-func List(ctx *gin.Context) {
+// ListGoods 获取购物车内商品列表
+func ListGoodsInCart(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
-	// 获取购物车商品
+	// 获取购物车中的商品id
 	userId, _ := ctx.Get("userId")
 	response, err := global.OrderClient.CartItemList(context.WithValue(context.Background(), "ginContext", ctx), &proto.UserInfo{Id: int32(userId.(uint))})
 	if err != nil {
@@ -39,7 +38,7 @@ func List(ctx *gin.Context) {
 		})
 		return
 	}
-	// 请求商品服务商品信息
+	// 获取商品详细信息
 	goodsListResponse, err := global.GoodsClient.BatchGetGoods(context.WithValue(context.Background(), "ginContext", ctx), &proto.BatchGoodsIdInfo{Id: ids})
 	if err != nil {
 		zap.S().Errorw("Error", "err", err.Error())
@@ -71,25 +70,25 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New
-// @Description: 添加商品到购物车
-// @param ctx
-//
-func New(ctx *gin.Context) {
+// AddGoodsToCart 添加商品到购物车
+func AddGoodsToCart(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
-	// 创建购物车表单
+
+	// 绑定参数
 	itemForm := forms.ShopCartItemForm{}
 	err := ctx.ShouldBind(&itemForm)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "购物车表单验证失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "cart bind form failed", "err", err.Error())
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
 
-	// 添加之前检查商品是否存在
+	// 检查商品是否存在
 	_, err = global.GoodsClient.GetGoodsDetail(context.WithValue(context.Background(), "ginContext", ctx), &proto.GoodsInfoRequest{
 		Id: itemForm.GoodsId,
 	})
@@ -99,19 +98,18 @@ func New(ctx *gin.Context) {
 		return
 	}
 
-	// 如果添加到购物车数量和商品库存不一致
+	// 校验商品库存
 	inventoryResp, err := global.InventoryClient.InvDetail(context.WithValue(context.Background(), "ginContext", ctx), &proto.GoodsInvInfo{
 		GoodsId: itemForm.GoodsId,
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "商品库存查询失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "inventory is not exists", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
-
 	if inventoryResp.Num < itemForm.Nums {
 		ctx.JSON(http.StatusOK, gin.H{
-			"nums": "商品库存不足",
+			"nums": "inventory less than nums",
 		})
 		return
 	}
@@ -123,7 +121,7 @@ func New(ctx *gin.Context) {
 		Nums:    itemForm.Nums,
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "添加到购物车失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "add to cart failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
@@ -133,22 +131,22 @@ func New(ctx *gin.Context) {
 	})
 	entry.Exit()
 }
-
-// Update
-// @Description: 更新购物车商品信息
-// @param ctx
-//
-func Update(ctx *gin.Context) {
+ 
+// Update 更新购物车商品信息
+func UpdateGoodsInCart(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
-	}
+	} 
+
 	id := ctx.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "param参数id转换失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "param bind failed", "err", err.Error())
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "url格式错误",
+			"message": "url param error",
 		})
 		return
 	}
@@ -156,42 +154,42 @@ func Update(ctx *gin.Context) {
 	itemForm := forms.ShopCartItemUpdateForm{}
 	err = ctx.ShouldBind(&itemForm)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "updateForm表单验证失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "updateForm  bind failed", "err", err.Error())
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
 
+	// 更新商品数量 和 选中状态
 	userId, _ := ctx.Get("userId")
 	_, err = global.OrderClient.UpdateCartItem(context.WithValue(context.Background(), "ginContext", ctx), &proto.CartItemRequest{
-
 		UserId:  int32(userId.(uint)),
 		GoodsId: int32(idInt),
 		Nums:    itemForm.Nums,
 		Checked: *itemForm.Checked,
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "更新", "err", err.Error())
+		zap.S().Errorw("Error", "message", "update failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
 	entry.Exit()
 }
 
-// Delete
-// @Description: 删除购物车内商品
-// @param ctx
-//
-func Delete(ctx *gin.Context) {
+// Delete 删除购物车内商品
+func DeleteGoodsInCart(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	id := ctx.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "param参数id转换失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "param bind failed", "err", err.Error())
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "url格式错误",
+			"message": "url param error",
 		})
 		return
 	}
@@ -202,10 +200,11 @@ func Delete(ctx *gin.Context) {
 		GoodsId: int32(idInt),
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "删除购物车记录失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "delete cart failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	ctx.Status(http.StatusOK)
 	entry.Exit()
 }

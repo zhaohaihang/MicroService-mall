@@ -9,9 +9,9 @@ import (
 func InitShopCartRouter(Router *gin.RouterGroup) {
 	ShopCartRouter := Router.Group("shopcarts", middlewares.Trace())
 	{
-		ShopCartRouter.GET("", middlewares.JWTAuth(), shop_cart.List)          //购物车列表
-		ShopCartRouter.DELETE("/:id", middlewares.JWTAuth(), shop_cart.Delete) //删除条目
-		ShopCartRouter.POST("", middlewares.JWTAuth(), shop_cart.New)          //添加商品到购物车
-		ShopCartRouter.PATCH("/:id", middlewares.JWTAuth(), shop_cart.Update)  //修改条目
+		ShopCartRouter.GET("", middlewares.JWTAuth(), shop_cart.ListGoodsInCart)          //购物车列表
+		ShopCartRouter.DELETE("/:id", middlewares.JWTAuth(), shop_cart.DeleteGoodsInCart) //删除条目
+		ShopCartRouter.POST("", middlewares.JWTAuth(), shop_cart.AddGoodsToCart)          //添加商品到购物车
+		ShopCartRouter.PATCH("/:id", middlewares.JWTAuth(), shop_cart.UpdateGoodsInCart)  //修改条目
 	}
 }
