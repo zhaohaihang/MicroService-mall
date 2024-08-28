@@ -9,9 +9,9 @@ import (
 func InitAddressRouter(Router *gin.RouterGroup) {
 	AddressRouter := Router.Group("address", middlewares.Trace())
 	{
-		AddressRouter.GET("", middlewares.JWTAuth(), address.List)
-		AddressRouter.DELETE("/:id", middlewares.JWTAuth(), address.Delete)
-		AddressRouter.POST("", middlewares.JWTAuth(), address.New)
-		AddressRouter.PUT("/:id", middlewares.JWTAuth(), address.Update)
+		AddressRouter.GET("", middlewares.JWTAuth(), address.ListAddress)
+		AddressRouter.DELETE("/:id", middlewares.JWTAuth(), address.DeleteAddress)
+		AddressRouter.POST("", middlewares.JWTAuth(), address.CreateAddress)
+		AddressRouter.PUT("/:id", middlewares.JWTAuth(), address.UpdateAddress)
 	}
 }

@@ -14,19 +14,18 @@ import (
 	"go.uber.org/zap"
 )
 
-func List(ctx *gin.Context) {
+func ListAddress(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
 		zap.S().Errorw("Error", "message", "Request too frequent")
 		utils.HandleRequestFrequentError(ctx)
-		return 
+		return
 	}
 
 	request := &proto.AddressRequest{}
 
 	claims, _ := ctx.Get("claims")
 	currentUser := claims.(*models.CustomClaims)
-
 	if currentUser.AuthorityId != 2 {
 		userId, _ := ctx.Get("userId")
 		request.UserId = int32(userId.(uint))
@@ -34,7 +33,7 @@ func List(ctx *gin.Context) {
 
 	response, err := global.AddressClient.GetAddressList(context.WithValue(context.Background(), "ginContext", ctx), request)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "获取地址列表失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "get address list failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
@@ -61,21 +60,23 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-func New(ctx *gin.Context) {
+func CreateAddress(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	addressForm := forms.AddressForm{}
 	err := ctx.ShouldBind(&addressForm)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "添加地址表单验证失败")
+		zap.S().Errorw("Error", "message", "form bind failed")
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
 
 	userId, _ := ctx.Get("userId")
-
 	response, err := global.AddressClient.CreateAddress(context.WithValue(context.Background(), "ginContext", ctx), &proto.AddressRequest{
 		UserId:       int32(userId.(uint)),
 		Province:     addressForm.Province,
@@ -86,7 +87,7 @@ func New(ctx *gin.Context) {
 		SignerMobile: addressForm.SignerMobile,
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "添加地址服务失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "create address failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
@@ -102,41 +103,49 @@ func New(ctx *gin.Context) {
 	entry.Exit()
 }
 
-func Delete(ctx *gin.Context) {
+func DeleteAddress(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	id := ctx.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
-		ctx.Status(http.StatusNotFound)
+		zap.S().Errorw("Error", "GetCaptcha", "param error ", err.Error())
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"msg": "param error",
+		})
 		return
 	}
 
 	userId, _ := ctx.Get("userId")
-
 	_, err = global.AddressClient.DeleteAddress(context.WithValue(context.Background(), "ginContext", ctx), &proto.AddressRequest{Id: int32(idInt), UserId: int32(userId.(uint))})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "删除地址服务失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "delete address failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "删除成功",
+		"message": "success",
 	})
 	entry.Exit()
 }
 
-func Update(ctx *gin.Context) {
+func UpdateAddress(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	addressForm := forms.AddressForm{}
 	err := ctx.ShouldBind(&addressForm)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "地址表单验证失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "form bind failed", "err", err.Error())
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
@@ -159,12 +168,12 @@ func Update(ctx *gin.Context) {
 		SignerMobile: addressForm.SignerMobile,
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "更新地址服务失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "update address failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "更新成功",
+		"message": "success",
 	})
 	entry.Exit()
 }

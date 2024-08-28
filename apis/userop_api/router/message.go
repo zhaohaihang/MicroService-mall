@@ -9,7 +9,7 @@ import (
 func InitMessageRouter(Router *gin.RouterGroup) {
 	MessageRouter := Router.Group("message", middlewares.Trace())
 	{
-		MessageRouter.GET("", middlewares.JWTAuth(), message.List)
-		MessageRouter.POST("", middlewares.JWTAuth(), message.New)
+		MessageRouter.GET("", middlewares.JWTAuth(), message.ListMessage)
+		MessageRouter.POST("", middlewares.JWTAuth(), message.CreateMessage)
 	}
 }

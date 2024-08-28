@@ -13,20 +13,25 @@ import (
 	"go.uber.org/zap"
 )
 
-func List(ctx *gin.Context) {
+func ListFavorite(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
+	// 获取用户的收藏的商品列表
 	userId, _ := ctx.Get("userId")
 	response, err := global.UserFavoriteClient.GetFavoriteList(context.WithValue(context.Background(), "ginContext", ctx), &proto.UserFavoriteRequest{
 		UserId: int32(userId.(uint)),
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "获取收藏列表失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "get favorite list failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
+
 	ids := make([]int32, 0)
 	for _, item := range response.Data {
 		ids = append(ids, item.GoodsId)
@@ -38,9 +43,10 @@ func List(ctx *gin.Context) {
 		return
 	}
 
+	// 获取商品详细信息
 	goodsResponse, err := global.GoodsClient.BatchGetGoods(context.WithValue(context.Background(), "ginContext", ctx), &proto.BatchGoodsIdInfo{Id: ids})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "商品服务批量获取商品失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "get goods info failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
@@ -67,15 +73,18 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-func New(ctx *gin.Context) {
+func CreateFavorite(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	userFavFrom := forms.UserFavForm{}
 	err := ctx.ShouldBind(&userFavFrom)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "添加地址表单验证失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "favorite bind failed", "err", err.Error())
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
@@ -86,48 +95,55 @@ func New(ctx *gin.Context) {
 		GoodsId: userFavFrom.GoodsId,
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "添加收藏失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "add fauorite failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "收藏成功",
+		"message": "success",
 	})
 	entry.Exit()
 }
 
-func Delete(ctx *gin.Context) {
+func DeleteFavorite(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	id := ctx.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		ctx.Status(http.StatusNotFound)
 		return
 	}
+
 	userId, _ := ctx.Get("userId")
 	_, err = global.UserFavoriteClient.DeleteUserFavorite(context.WithValue(context.Background(), "ginContext", ctx), &proto.UserFavoriteRequest{
 		UserId:  int32(userId.(uint)),
 		GoodsId: int32(idInt),
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "删除收藏失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "delete favorite failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "删除收藏成功",
+		"message": "success",
 	})
 	entry.Exit()
 }
 
-func Detail(ctx *gin.Context) {
+func DetailFavorite(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	goodsId := ctx.Param("id")
 	goodsIdInt, err := strconv.ParseInt(goodsId, 10, 32)
 	if err != nil {
@@ -140,7 +156,7 @@ func Detail(ctx *gin.Context) {
 		GoodsId: int32(goodsIdInt),
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "获取收藏详情失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "get UserFavoriteDetail failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}

@@ -9,9 +9,9 @@ import (
 func InitUserFavoriteRouter(Router *gin.RouterGroup) {
 	userFavoriteRouter := Router.Group("userfavs", middlewares.Trace())
 	{
-		userFavoriteRouter.GET("", middlewares.JWTAuth(), userFavorite.List)
-		userFavoriteRouter.POST("", middlewares.JWTAuth(), userFavorite.New)
-		userFavoriteRouter.GET("/:id", middlewares.JWTAuth(), userFavorite.Detail)
-		userFavoriteRouter.DELETE("/:id", middlewares.JWTAuth(), userFavorite.Delete)
+		userFavoriteRouter.GET("", middlewares.JWTAuth(), userFavorite.ListFavorite)
+		userFavoriteRouter.POST("", middlewares.JWTAuth(), userFavorite.CreateFavorite)
+		userFavoriteRouter.GET("/:id", middlewares.JWTAuth(), userFavorite.DetailFavorite)
+		userFavoriteRouter.DELETE("/:id", middlewares.JWTAuth(), userFavorite.DeleteFavorite)
 	}
 }

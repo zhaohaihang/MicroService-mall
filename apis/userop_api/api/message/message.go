@@ -13,11 +13,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func List(ctx *gin.Context) {
+func ListMessage(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
+
 	request := &proto.MessageRequest{}
 	userId, _ := ctx.Get("userId")
 	claims, _ := ctx.Get("claims")
@@ -28,7 +31,7 @@ func List(ctx *gin.Context) {
 
 	response, err := global.MessageClient.MessageList(context.WithValue(context.Background(), "ginContext", ctx), request)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "查询message列表失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "get message list failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
@@ -52,9 +55,11 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-func New(ctx *gin.Context) {
+func CreateMessage(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
+		zap.S().Errorw("Error", "message", "Request too frequent")
+		utils.HandleRequestFrequentError(ctx)
 		return
 	}
 
@@ -63,7 +68,7 @@ func New(ctx *gin.Context) {
 	messageForm := forms.MessageForm{}
 	err := ctx.ShouldBind(&messageForm)
 	if err != nil {
-		zap.S().Errorw("Error", "message", "新建信息表单验证失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "bind form failed", "err", err.Error())
 		utils.HandleValidatorError(ctx, err)
 		return
 	}
@@ -76,7 +81,7 @@ func New(ctx *gin.Context) {
 		File:        messageForm.File,
 	})
 	if err != nil {
-		zap.S().Errorw("Error", "message", "新建message失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "create meaages failed", "err", err.Error())
 		utils.HandleGrpcErrorToHttpError(err, ctx)
 		return
 	}
