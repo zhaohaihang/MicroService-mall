@@ -3,13 +3,14 @@ package initialize
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"github.com/zhaohaihang/userop_service/config"
 	"github.com/zhaohaihang/userop_service/global"
+	"go.uber.org/zap"
 )
 
 func InitConfig() {
@@ -70,8 +71,8 @@ func InitConfig() {
 
 	//监听配置修改
 	err = client.ListenConfig(vo.ConfigParam{
-		DataId: "userop_sercice.json",
-		Group:  "dev",
+		DataId: global.NacosConfig.Dataid,
+		Group:  global.NacosConfig.Group,
 		OnChange: func(namespace, group, dataId, data string) {
 			// TODO 配置变化时，应该重新反序列化，并且重新初始化一些公共资源
 		},

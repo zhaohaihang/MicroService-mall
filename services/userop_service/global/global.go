@@ -2,8 +2,8 @@ package global
 
 import (
 	"github.com/hashicorp/consul/api"
-	"gorm.io/gorm"
 	"github.com/zhaohaihang/userop_service/config"
+	"gorm.io/gorm"
 )
 
 var (

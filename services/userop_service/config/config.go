@@ -16,8 +16,8 @@ type NacosConfig struct {
 }
 
 type ServiceConfig struct {
-	Name         string `json:"name"`
-	Host         string `json:"host"`
+	Name         string         `json:"name"`
+	Host         string         `json:"host"`
 	MysqlInfo    MysqlConfig    `json:"mysql"`
 	ConsulInfo   ConsulConfig   `json:"consul"`
 	JaegerInfo   JaegerConfig   `json:"jaeger"`

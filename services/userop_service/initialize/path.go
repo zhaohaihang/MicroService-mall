@@ -8,10 +8,10 @@ import (
 	"github.com/zhaohaihang/userop_service/global"
 )
 
-func InitFileAbsPath() {
+func InitFileAbsPath(cfgOption string) {
 	basePath := getCurrentAbsolutePath()
 	global.FilePath = &config.FilePathConfig{
-		ConfigFile: basePath + "/config-debug.yaml",
+		ConfigFile: basePath + "/config-"+cfgOption+".yaml",
 		LogFile:    basePath + "/log",
 	}
 	fmt.Println("file path init success:", basePath)
