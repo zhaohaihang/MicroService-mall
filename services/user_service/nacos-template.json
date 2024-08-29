@@ -1,6 +1,6 @@
 {
     "name": "user_service",
-    "host": "192.168.30.6",
+    "host": "192.168.3.12",
     "register":{
         "tags":["user","service"],
         "check_time_out":"5s",
@@ -8,23 +8,23 @@
         "deregister_time":"60s"
     },
     "mysql": {
-      "host": "192.168.30.3",
+      "host": "192.168.3.13",
       "port": 3306,
       "user": "root",
       "password": "123456",
       "name": "user_service"
     },
     "consul":{
-      "host": "192.168.30.3",
+      "host": "192.168.3.13",
       "port": 8500
     },
     "redis":{
-      "host":"192.168.30.3",
+      "host":"192.168.3.13",
       "port":6379,
       "password":"123456"
     },
     "jaeger":{
-      "host":"192.168.30.3",
+      "host":"192.168.3.13",
       "port": 14268
     }
   }

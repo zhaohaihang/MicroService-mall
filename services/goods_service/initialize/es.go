@@ -42,8 +42,8 @@ func Mysql2Es() {
 	for _, g := range goods {
 		esModel := model.EsGoods{
 			ID:          int32(g.ID),
-			CategoryID:  g.CategoryID,
-			BrandsID:    g.BrandID,
+			CategoryID:  int32(g.CategoryID),
+			BrandsID:    int32(g.BrandID),
 			OnSale:      g.OnSale,
 			ShipFree:    g.ShipFree,
 			IsNew:       g.IsNew,

@@ -15,8 +15,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// InitDB
-// @Description: 初始化DB
+// InitDB 初始化DB
 func InitDB() {
 	var err error
 	MysqlInfo := global.ServiceConfig.MySqlInfo
@@ -37,9 +36,10 @@ func InitDB() {
 	if err != nil {
 		zap.S().Fatalw("gorm open dsn failed: %s", "err", err.Error())
 	}
-	err = global.DB.AutoMigrate(&model.Category{}, &model.Brand{}, &model.GoodsCategoryBrand{}, &model.Banner{}, &model.Goods{})
+	//, &model.Brand{},  &model.GoodsCategoryBrand{}
+	err = global.DB.AutoMigrate( &model.Banner{},&model.Category{},&model.Brand{},&model.Goods{},&model.GoodsCategoryBrand{})
 	if err != nil {
-		zap.S().Fatalw("db  AutoMigrate : %s", "err", err.Error())
+		zap.S().Fatalw("db  AutoMigrate:", "err", err.Error())
 	}
 	zap.S().Infow("init goods db conn success")
 }

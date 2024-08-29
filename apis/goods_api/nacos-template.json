@@ -1,23 +1,24 @@
 {
-    "name": "goods_api",
-    "host": "192.168.30.6",
-    "register":{
-        "tags":["goods","api"],
-        "check_time_out":"5s",
-        "check_interval":"10s",
-        "deregister_time":"60s"
-    },
-    "consul":{
-      "host": "192.168.30.3",
-      "port": 8500
-    },
-    "redis":{
-      "host":"192.168.30.3",
-      "port":6379,
-      "password":"123456"
-    },
-    "jaeger":{
-      "host":"192.168.30.3",
-      "port": 14268
-    }
+  "name":"goods_api",
+  "host": "192.168.3.12",
+  "jwt":{
+      "key":"7G(yQ9F0tXHy#EHT0ZIR"
+  },
+  "consul":{
+      "host":"192.168.3.13",
+      "port":8500
+  },
+  "jaeger_info":{
+      "host":"192.168.3.13",
+      "port":6831
+  },
+  "goods_service_info":{
+      "name":"goods_service"
+  },
+  "register":{
+    "tags":["goods","api"],
+    "check_time_out":"5s",
+    "check_interval":"10s",
+    "deregister_time":"60s"
   }
+}

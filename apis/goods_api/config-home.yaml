@@ -1,7 +1,7 @@
 # 虚拟机nacos
-host: '192.168.159.142'
+host: '192.168.3.13'
 port: 8848
-namespace: '41ab20d7-781f-4dfb-81d5-277c4f1d26a3'
+namespace: 'a61c1d47-3e45-402a-8e3b-adf7bc0a1f5e'
 user: "nacos"
 password: "zhaohaihang"
 dataid: "goods_api.json"

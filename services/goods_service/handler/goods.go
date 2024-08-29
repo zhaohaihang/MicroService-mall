@@ -156,9 +156,9 @@ func (g *GoodsServer) CreateGoods(ctx context.Context, request *proto.CreateGood
 
 	goods := model.Goods{
 		Brand:           brand,
-		BrandID:         int32(brand.ID),
+		BrandID:         brand.ID,
 		Category:        category,
-		CategoryID:      int32(category.ID),
+		CategoryID:      category.ID,
 		Name:            request.Name,
 		GoodsSn:         request.GoodsSn,
 		MarketPrice:     request.MarketPrice,
@@ -218,9 +218,9 @@ func (g GoodsServer) UpdateGoods(ctx context.Context, request *proto.CreateGoods
 	}
 
 	goods.Brand = brand
-	goods.BrandID = int32(brand.ID)
+	goods.BrandID = brand.ID
 	goods.Category = category
-	goods.CategoryID = int32(category.ID)
+	goods.CategoryID = category.ID
 	goods.Name = request.Name
 	goods.GoodsSn = request.GoodsSn
 	goods.MarketPrice = request.MarketPrice

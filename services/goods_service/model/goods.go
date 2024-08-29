@@ -13,7 +13,7 @@ import (
 type Category struct {
 	gorm.Model
 	Name             string      `gorm:"type:varchar(20);not null" json:"name"`
-	ParentCategoryID int32       `json:"parent"`
+	ParentCategoryID uint       `json:"parent"`
 	ParentCategory   *Category   `json:"-"`
 	SubCategory      []*Category `gorm:"foreignKey:ParentCategoryID;references:ID" json:"sub_category"`
 	Level            int32       `gorm:"type:int;not null;default:1" json:"level"`
@@ -39,10 +39,10 @@ func (Brand) TableName() string {
 // GoodsCategoryBrand 商品目录表结构
 type GoodsCategoryBrand struct {
 	gorm.Model
-	CategoryID int32 `gorm:"type:int;index:idx_category_brand,unique"`
+	CategoryID uint `gorm:"type:int;index:idx_category_brand,unique"`
 	Category   Category
 
-	BrandID int32 `gorm:"type:int;index:idx_category_brand,unique"`
+	BrandID uint `gorm:"type:int;index:idx_category_brand,unique"`
 	Brand   Brand
 }
 
@@ -68,9 +68,9 @@ func (Banner) TableName() string {
 type Goods struct {
 	gorm.Model
 
-	CategoryID int32 `gorm:"type:int;not null"`
+	CategoryID uint `gorm:"type:int;not null"`
 	Category   Category
-	BrandID    int32 `gorm:"type:int;not null;column:brand_id"`
+	BrandID    uint `gorm:"type:int;not null;column:brand_id"`
 	Brand      Brand
 
 	OnSale   bool `gorm:"default:false;not null"`
@@ -95,8 +95,8 @@ type Goods struct {
 func (g *Goods) AfterCreate(tx *gorm.DB) (err error) {
 	esModel := EsGoods{
 		ID:          int32(g.ID),
-		CategoryID:  g.CategoryID,
-		BrandsID:    g.BrandID,
+		CategoryID:  int32(g.CategoryID),
+		BrandsID:    int32(g.BrandID),
 		OnSale:      g.OnSale,
 		ShipFree:    g.ShipFree,
 		IsNew:       g.IsNew,
@@ -120,8 +120,8 @@ func (g *Goods) AfterCreate(tx *gorm.DB) (err error) {
 func (g *Goods) AfterUpdate(tx *gorm.DB) (err error) {
 	esModel := EsGoods{
 		ID:          int32(g.ID),
-		CategoryID:  g.CategoryID,
-		BrandsID:    g.BrandID,
+		CategoryID:  int32(g.CategoryID),
+		BrandsID:    int32(g.BrandID),
 		OnSale:      g.OnSale,
 		ShipFree:    g.ShipFree,
 		IsNew:       g.IsNew,

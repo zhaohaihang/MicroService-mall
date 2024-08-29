@@ -17,7 +17,7 @@ func BannerToBannerResponse(banner *model.Banner) *proto.BannerResponse {
 func GoodsToGoodsInfoResponse(goods *model.Goods) proto.GoodsInfoResponse {
 	return proto.GoodsInfoResponse{
 		Id:              int32(goods.ID),
-		CategoryId:      goods.CategoryID,
+		CategoryId:      int32(goods.CategoryID),
 		Name:            goods.Name,
 		GoodsSn:         goods.GoodsSn,
 		ClickNum:        goods.ClickNum,

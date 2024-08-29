@@ -55,7 +55,7 @@ func (g *GoodsServer) GetSubCategory(ctx context.Context, request *proto.Categor
 	response.Info = &proto.CategoryInfoResponse{
 		Id:             int32(category.ID),
 		Name:           category.Name,
-		ParentCategory: category.ParentCategoryID,
+		ParentCategory: int32(category.ParentCategoryID),
 		Level:          category.Level,
 		IsTab:          category.IsTab,
 	}
@@ -63,12 +63,12 @@ func (g *GoodsServer) GetSubCategory(ctx context.Context, request *proto.Categor
 	// 获取二级目录
 	var subCategorys []model.Category
 	var subCategorysResponse []*proto.CategoryInfoResponse
-	global.DB.Where(&model.Category{ParentCategoryID: request.Id}).Find(&subCategorys)
+	global.DB.Where(&model.Category{ParentCategoryID: uint(request.Id)}).Find(&subCategorys)
 	for _, subCategory := range subCategorys {
 		subCategorysResponse = append(subCategorysResponse, &proto.CategoryInfoResponse{
 			Id:             int32(subCategory.ID),
 			Name:           subCategory.Name,
-			ParentCategory: subCategory.ParentCategoryID,
+			ParentCategory: int32(subCategory.ParentCategoryID),
 			Level:          subCategory.Level,
 			IsTab:          subCategory.IsTab,
 		})
@@ -87,7 +87,7 @@ func (g *GoodsServer) CreateCategory(ctx context.Context, request *proto.Categor
 	var category model.Category
 	category.Name = request.Name
 	if request.Level != 1 {
-		category.ParentCategoryID = request.ParentCategory
+		category.ParentCategoryID = uint(request.ParentCategory)
 	}
 	result := global.DB.Create(&category)
 	if result.RowsAffected == 0 {
@@ -100,7 +100,7 @@ func (g *GoodsServer) CreateCategory(ctx context.Context, request *proto.Categor
 		IsTab:          category.IsTab,
 		Level:          category.Level,
 		Name:           category.Name,
-		ParentCategory: category.ParentCategoryID,
+		ParentCategory: int32(category.ParentCategoryID),
 	}
 	return response, nil
 }
@@ -143,7 +143,7 @@ func (g *GoodsServer) UpdateCategory(ctx context.Context, request *proto.Categor
 		category.Level = request.Level
 	}
 	if request.ParentCategory != 0 {
-		category.ParentCategoryID = request.ParentCategory
+		category.ParentCategoryID = uint(request.ParentCategory)
 	}
 	if request.IsTab {
 		category.IsTab = request.IsTab
@@ -159,7 +159,7 @@ func (g *GoodsServer) UpdateCategory(ctx context.Context, request *proto.Categor
 		IsTab:          category.IsTab,
 		Level:          category.Level,
 		Name:           category.Name,
-		ParentCategory: category.ParentCategoryID,
+		ParentCategory: int32(category.ParentCategoryID),
 	}
 	return response, nil
 }

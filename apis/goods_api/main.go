@@ -22,16 +22,15 @@ func main() {
 	initialize.InitTranslator("zh")
 	initialize.InitGoodsServiceConn()
 
-
 	port, err := utils.GetFreePort()
 	if err == nil {
 		global.Port = port
 	}
 
 	go initialize.InitRouter()
-
+	
 	// 判断启动模式
-	if *Mode == "debug" {
+	if *Mode == "release" {
 		zap.S().Warnf("release mode \n")
 		mode.ReleaseMode()
 	} else if *Mode == "debug" {

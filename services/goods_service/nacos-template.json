@@ -1,6 +1,6 @@
 {
     "name": "goods_service",
-    "host": "192.168.30.6",
+    "host": "192.168.3.12",
     "register":{
         "tags":["goods","service"],
         "check_time_out":"5s",
@@ -8,27 +8,22 @@
         "deregister_time":"60s"
     },
     "mysql": {
-      "host": "192.168.30.3",
-      "port": 3306,
+      "host": "192.168.3.13",
+      "port": 3307,
       "user": "root",
       "password": "123456",
       "name": "goods_service"
     },
     "consul":{
-      "host": "192.168.30.3",
+      "host": "192.168.3.13",
       "port": 8500
     },
-    "redis":{
-      "host":"192.168.30.3",
-      "port":6379,
-      "password":"123456"
+    "es": {
+      "host":"192.168.3.13",
+      "port": 9200
     },
     "jaeger":{
-      "host":"192.168.30.3",
+      "host":"192.168.3.13",
       "port": 14268
-    },
-    "rocketmq":{
-      "host":"192.168.30.3",
-      "port": 9870
     }
-  }
+}

@@ -37,7 +37,7 @@ func (g *GoodsServer) CategoryBrandList(ctx context.Context, request *proto.Cate
 			Category: &proto.CategoryInfoResponse{
 				Id:             int32(categoryBrand.Category.ID),
 				Name:           categoryBrand.Category.Name,
-				ParentCategory: categoryBrand.Category.ParentCategoryID,
+				ParentCategory: int32(categoryBrand.Category.ParentCategoryID),
 				Level:          categoryBrand.Category.Level,
 				IsTab:          categoryBrand.Category.IsTab,
 			},
@@ -68,7 +68,7 @@ func (g GoodsServer) GetCategoryBrandList(ctx context.Context, request *proto.Ca
 	}
 	// 返回该分类下的 所有品牌
 	var categoryBrands []model.GoodsCategoryBrand
-	result = global.DB.Preload("Brands").Where(&model.GoodsCategoryBrand{CategoryID: request.Id}).Find(&categoryBrands)
+	result = global.DB.Preload("Brands").Where(&model.GoodsCategoryBrand{CategoryID: uint(request.Id)}).Find(&categoryBrands)
 	if result.RowsAffected > 0 {
 		response.Total = int32(result.RowsAffected)
 	}
@@ -105,8 +105,8 @@ func (g *GoodsServer) CreateCategoryBrand(ctx context.Context, request *proto.Ca
 	}
 
 	categoryBrand := model.GoodsCategoryBrand{
-		CategoryID: request.CategoryId,
-		BrandID:    request.BrandId,
+		CategoryID: uint(request.CategoryId),
+		BrandID:    uint(request.BrandId),
 	}
 	
 	global.DB.Save(&categoryBrand)
@@ -115,7 +115,7 @@ func (g *GoodsServer) CreateCategoryBrand(ctx context.Context, request *proto.Ca
 		Category: &proto.CategoryInfoResponse{
 			Id:             int32(categoryBrand.Category.ID),
 			Name:           categoryBrand.Category.Name,
-			ParentCategory: categoryBrand.Category.ParentCategoryID,
+			ParentCategory: int32(categoryBrand.Category.ParentCategoryID),
 			Level:          categoryBrand.Category.Level,
 			IsTab:          categoryBrand.Category.IsTab,
 		},
@@ -177,8 +177,8 @@ func (g *GoodsServer) UpdateCategoryBrand(ctx context.Context, request *proto.Ca
 		return response, status.Errorf(codes.InvalidArgument, "Brand is not exists")
 	}
 
-	categoryBrand.CategoryID = request.CategoryId
-	categoryBrand.BrandID = request.BrandId
+	categoryBrand.CategoryID = uint(request.CategoryId)
+	categoryBrand.BrandID = uint(request.BrandId)
 
 	global.DB.Save(&categoryBrand)
 	return response, nil

@@ -3,7 +3,7 @@ package config
 type ApiConfig struct {
 	Name            string            `json:"name"`
 	Host            string            `json:"host"`
-	ServiceInfo 	Register     `json:"register"`
+	ServiceInfo     Register          `json:"register"`
 	JWTInfo         JwtConfig         `json:"jwt"`
 	AliSmsInfo      AliSmsConfig      `json:"aliyun_message"`
 	RedisInfo       RedisConfig       `json:"redis"`
@@ -21,8 +21,8 @@ type AliSmsConfig struct {
 	ApiSecret    string `json:"secret"`
 	SignName     string `json:"signName"`
 	TemplateCode string `json:"template_code"`
-	RegionId	 string `json:"region_id"`
-} 
+	RegionId     string `json:"region_id"`
+}
 
 type ConsulConfig struct {
 	Host string `mapstructure:"host"`
