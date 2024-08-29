@@ -1,8 +1,8 @@
 {
-    "name": "goods_api",
+    "name": "order_api",
     "host": "192.168.30.6",
     "register":{
-        "tags":["goods","api"],
+        "tags":["order","api"],
         "check_time_out":"5s",
         "check_interval":"10s",
         "deregister_time":"60s"

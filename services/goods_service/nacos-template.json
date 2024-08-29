@@ -1,11 +1,18 @@
 {
-    "name": "goods_api",
+    "name": "goods_service",
     "host": "192.168.30.6",
     "register":{
-        "tags":["goods","api"],
+        "tags":["goods","service"],
         "check_time_out":"5s",
         "check_interval":"10s",
         "deregister_time":"60s"
+    },
+    "mysql": {
+      "host": "192.168.30.3",
+      "port": 3306,
+      "user": "root",
+      "password": "123456",
+      "name": "goods_service"
     },
     "consul":{
       "host": "192.168.30.3",
@@ -19,5 +26,9 @@
     "jaeger":{
       "host":"192.168.30.3",
       "port": 14268
+    },
+    "rocketmq":{
+      "host":"192.168.30.3",
+      "port": 9870
     }
   }
