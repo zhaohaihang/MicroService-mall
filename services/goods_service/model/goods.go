@@ -111,7 +111,7 @@ func (g *Goods) AfterCreate(tx *gorm.DB) (err error) {
 	}
 	_, err = global.EsClient.Index().Index(esModel.GetIndexName()).BodyJson(esModel).Id(strconv.Itoa(int(g.ID))).Do(context.Background())
 	if err != nil {
-		zap.S().Errorw("Error", "message", "同步创建es数据失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "sync es data failed", "err", err.Error())
 		return err
 	}
 	return nil
@@ -137,7 +137,7 @@ func (g *Goods) AfterUpdate(tx *gorm.DB) (err error) {
 
 	_, err = global.EsClient.Update().Index(esModel.GetIndexName()).Doc(esModel).Id(strconv.Itoa(int(g.ID))).Do(context.Background())
 	if err != nil {
-		zap.S().Errorw("Error", "message", "同步更新es数据失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "sync es data failed", "err", err.Error())
 		return err
 	}
 	return nil
@@ -146,7 +146,7 @@ func (g *Goods) AfterUpdate(tx *gorm.DB) (err error) {
 func (g *Goods) AfterDelete(tx *gorm.DB) (err error) {
 	_, err = global.EsClient.Delete().Index(EsGoods{}.GetIndexName()).Id(strconv.Itoa(int(g.ID))).Do(context.Background())
 	if err != nil {
-		zap.S().Errorw("Error", "message", "同步删除es数据失败", "err", err.Error())
+		zap.S().Errorw("Error", "message", "sync es data failed", "err", err.Error())
 		return err
 	}
 	return nil
