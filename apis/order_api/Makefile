@@ -2,7 +2,7 @@ build:
 	go build .
 
 runhome:
-	./order_api --configFile home
+	./order_api --nacosConfig home
 
 runcom:
-	./order_api --configFile com
+	./order_api --nacosConfig com

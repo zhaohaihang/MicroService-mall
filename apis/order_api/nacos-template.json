@@ -1,23 +1,37 @@
 {
-    "name": "order_api",
-    "host": "192.168.30.6",
-    "register":{
-        "tags":["order","api"],
-        "check_time_out":"5s",
-        "check_interval":"10s",
-        "deregister_time":"60s"
-    },
-    "consul":{
-      "host": "192.168.30.3",
-      "port": 8500
-    },
-    "redis":{
+  "name":"order_api",
+  "host": "192.168.30.6",
+  "jwt":{
+      "key":"7G(yQ9F0tXHy#EHT0ZIR"
+  },
+  "consul":{
       "host":"192.168.30.3",
-      "port":6379,
-      "password":"123456"
-    },
-    "jaeger":{
+      "port":8500
+  },
+  "jaeger_info":{
       "host":"192.168.30.3",
-      "port": 14268
-    }
+      "port":6831
+  },
+  "order_service":{
+      "name":"order_service"
+  },
+  "goods_service":{
+      "name":"goods_service"
+  },
+  "inventory_service":{
+      "name":"inventory_service"
+  },
+  "register":{
+    "tags":["order","api"],
+    "check_time_out":"5s",
+    "check_interval":"10s",
+    "deregister_time":"60s"
+  },
+  "alipay_info":{
+    "app_id":"2021000121665075",
+    "private_key":"XXXXX",
+    "ali_public_key":"XXXXX",
+    "notify_url":"http://120.25.255.207:33389/",
+    "return_url":"127.0.0.1:8089"
   }
+}
