@@ -1,7 +1,7 @@
 
-host: "192.168.159.142"
+host: "192.168.30.3"
 port: 8848
-namespace: '464c7e50-f3c8-4974-b722-01477f8ecb52'
+namespace: '74662ca9-2807-48b0-b467-096687999a2e'
 user: 'nacos'
 password: 'zhaohaihang'
 dataid: 'goods_service.json'
