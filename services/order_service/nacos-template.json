@@ -9,10 +9,10 @@
     },
     "mysql": {
       "host": "192.168.30.3",
-      "port": 3306,
+      "port": 3309,
       "user": "root",
       "password": "123456",
-      "name": "user_service"
+      "name": "order_service"
     },
     "consul":{
       "host": "192.168.30.3",
@@ -20,7 +20,7 @@
     },
     "redis":{
       "host":"192.168.30.3",
-      "port":6379,
+      "port":6382,
       "password":"123456"
     },
     "jaeger":{
@@ -29,6 +29,12 @@
     },
     "rocketmq":{
       "host":"192.168.30.3",
-      "port": 9870
+      "port": 9876
+    },
+    "goods_service":{
+      "name":"goods_service"
+    },
+    "inventory_service":{
+      "name":"inventory_service"
     }
-  }
+}
