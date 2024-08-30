@@ -9,7 +9,7 @@
     },
     "mysql": {
       "host": "192.168.30.3",
-      "port": 3306,
+      "port": 3310,
       "user": "root",
       "password": "123456",
       "name": "userop_service"
@@ -18,17 +18,8 @@
       "host": "192.168.30.3",
       "port": 8500
     },
-    "redis":{
-      "host":"192.168.30.3",
-      "port":6379,
-      "password":"123456"
-    },
     "jaeger":{
       "host":"192.168.30.3",
       "port": 14268
-    },
-    "rocketmq":{
-      "host":"192.168.30.3",
-      "port": 9870
     }
   }
