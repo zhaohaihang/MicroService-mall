@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/zhaohaihang/userop_web/api/address"
-	"github.com/zhaohaihang/userop_web/middlewares"
+	"github.com/zhaohaihang/userop_api/api/address"
+	"github.com/zhaohaihang/userop_api/middlewares"
 )
 
 func InitAddressRouter(Router *gin.RouterGroup) {

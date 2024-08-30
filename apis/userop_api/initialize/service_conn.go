@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/opentracing/opentracing-go"
-	"github.com/zhaohaihang/userop_web/global"
-	"github.com/zhaohaihang/userop_web/proto"
-	"github.com/zhaohaihang/userop_web/utils/otgrpc"
+	"github.com/zhaohaihang/userop_api/global"
+	"github.com/zhaohaihang/userop_api/proto"
+	"github.com/zhaohaihang/userop_api/utils/otgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

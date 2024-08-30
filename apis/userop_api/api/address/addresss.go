@@ -6,11 +6,11 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/zhaohaihang/userop_web/forms"
-	"github.com/zhaohaihang/userop_web/global"
-	"github.com/zhaohaihang/userop_web/models"
-	"github.com/zhaohaihang/userop_web/proto"
-	"github.com/zhaohaihang/userop_web/utils"
+	"github.com/zhaohaihang/userop_api/forms"
+	"github.com/zhaohaihang/userop_api/global"
+	"github.com/zhaohaihang/userop_api/models"
+	"github.com/zhaohaihang/userop_api/proto"
+	"github.com/zhaohaihang/userop_api/utils"
 	"go.uber.org/zap"
 )
 

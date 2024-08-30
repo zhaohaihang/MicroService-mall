@@ -7,7 +7,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/global"
 	"go.uber.org/zap"
 
 	"io"

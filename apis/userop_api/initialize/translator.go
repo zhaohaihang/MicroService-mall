@@ -10,7 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 	zh_translations "github.com/go-playground/validator/v10/translations/zh"
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/global"
 	"go.uber.org/zap"
 
 	"reflect"

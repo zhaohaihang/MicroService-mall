@@ -4,8 +4,8 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/zhaohaihang/userop_web/config"
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/config"
+	"github.com/zhaohaihang/userop_api/global"
 )
 
 func InitFileAbsPath(configFile string) {

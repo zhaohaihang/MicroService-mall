@@ -4,8 +4,8 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"github.com/zhaohaihang/userop_web/global"
-	"github.com/zhaohaihang/userop_web/proto"
+	"github.com/zhaohaihang/userop_api/global"
+	"github.com/zhaohaihang/userop_api/proto"
 )
 
 func DebugMode() {

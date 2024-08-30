@@ -8,8 +8,8 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
-	"github.com/zhaohaihang/userop_web/config"
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/config"
+	"github.com/zhaohaihang/userop_api/global"
 	"go.uber.org/zap"
 )
 

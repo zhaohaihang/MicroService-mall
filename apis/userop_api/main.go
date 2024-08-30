@@ -3,19 +3,19 @@ package main
 import (
 	"flag"
 
-	"github.com/zhaohaihang/userop_web/global"
-	"github.com/zhaohaihang/userop_web/initialize"
-	"github.com/zhaohaihang/userop_web/mode"
-	"github.com/zhaohaihang/userop_web/utils"
+	"github.com/zhaohaihang/userop_api/global"
+	"github.com/zhaohaihang/userop_api/initialize"
+	"github.com/zhaohaihang/userop_api/mode"
+	"github.com/zhaohaihang/userop_api/utils"
 	"go.uber.org/zap"
 )
 
 func main() {
 	Mode := flag.String("mode", "release", "mode debug / release ")
-	configFile := flag.String("configFile", "home", "home / com ")
+	nacosConfig := flag.String("nacosConfig", "home", "home / com ")
 	flag.Parse()
 
-	initialize.InitFileAbsPath(*configFile)
+	initialize.InitFileAbsPath(*nacosConfig)
 	initialize.InitLogger()
 	initialize.InitConfig()
 	initialize.InitTranslator("zh")

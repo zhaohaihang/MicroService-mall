@@ -1,4 +1,4 @@
-module github.com/zhaohaihang/userop_web
+module github.com/zhaohaihang/userop_api
 
 go 1.18
 

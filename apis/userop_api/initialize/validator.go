@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/global"
 	"go.uber.org/zap"
 
-	myValidate "github.com/zhaohaihang/userop_web/validator"
+	myValidate "github.com/zhaohaihang/userop_api/validator"
 )
 
 var validate *validator.Validate

@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/global"
 
 	"github.com/hashicorp/consul/api"
 	uuid "github.com/satori/go.uuid"

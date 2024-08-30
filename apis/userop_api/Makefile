@@ -2,7 +2,7 @@ build:
 	go build .
 
 runhome:
-	./userop_api --configFile home
+	./userop_api --nacosConfig home
 
 runcom:
-	./userop_api --configFile com
+	./userop_api --nacosConfig com

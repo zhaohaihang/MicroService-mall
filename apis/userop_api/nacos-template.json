@@ -1,23 +1,27 @@
 {
-    "name": "userop_api",
-    "host": "192.168.30.6",
-    "register":{
-        "tags":["userop","api"],
-        "check_time_out":"5s",
-        "check_interval":"10s",
-        "deregister_time":"60s"
-    },
-    "consul":{
-      "host": "192.168.30.3",
-      "port": 8500
-    },
-    "redis":{
-      "host":"192.168.30.3",
-      "port":6379,
-      "password":"123456"
-    },
-    "jaeger":{
-      "host":"192.168.30.3",
-      "port": 14268
-    }
+  "name": "userop_api",
+  "host": "192.168.30.6",
+  "jwt":{
+    "key":"7G(yQ9F0tXHy#EHT0ZIR"
+  },
+  "register":{
+    "tags":["userop","api"],
+    "check_time_out":"5s",
+    "check_interval":"10s",
+    "deregister_time":"60s"
+  },
+  "consul":{
+    "host": "192.168.30.3",
+    "port": 8500
+  },
+  "jaeger":{
+    "host":"192.168.30.3",
+    "port": 14268
+  },
+  "goods_service":{
+    "name":"goods_service"
+  },
+  "userop_service":{
+    "name":"userop_service"
   }
+}

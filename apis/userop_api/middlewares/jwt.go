@@ -4,12 +4,12 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/global"
 	"go.uber.org/zap"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/zhaohaihang/userop_web/models"
+	"github.com/zhaohaihang/userop_api/models"
 )
 
 type JWT struct {

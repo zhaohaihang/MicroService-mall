@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/natefinch/lumberjack"
-	"github.com/zhaohaihang/userop_web/global"
+	"github.com/zhaohaihang/userop_api/global"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

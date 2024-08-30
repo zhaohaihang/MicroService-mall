@@ -2,8 +2,8 @@ package global
 
 import (
 	ut "github.com/go-playground/universal-translator"
-	"github.com/zhaohaihang/userop_web/config"
-	"github.com/zhaohaihang/userop_web/proto"
+	"github.com/zhaohaihang/userop_api/config"
+	"github.com/zhaohaihang/userop_api/proto"
 )
 
 var (

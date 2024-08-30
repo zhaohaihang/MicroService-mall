@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/zhaohaihang/userop_web/global"
-	"github.com/zhaohaihang/userop_web/middlewares"
-	"github.com/zhaohaihang/userop_web/router"
+	"github.com/zhaohaihang/userop_api/global"
+	"github.com/zhaohaihang/userop_api/middlewares"
+	"github.com/zhaohaihang/userop_api/router"
 	"go.uber.org/zap"
 )
 

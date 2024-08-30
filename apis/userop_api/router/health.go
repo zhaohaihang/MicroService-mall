@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/zhaohaihang/userop_web/api/health"
+	"github.com/zhaohaihang/userop_api/api/health"
 
 	"github.com/gin-gonic/gin"
 )
