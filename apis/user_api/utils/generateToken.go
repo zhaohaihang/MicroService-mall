@@ -17,7 +17,7 @@ func GenerateToken(Id uint, NickName string, Role uint) (string, error) {
 		StandardClaims: jwt.StandardClaims{
 			NotBefore: time.Now().Unix(),               // 签名的生效时间
 			ExpiresAt: time.Now().Unix() + 60*60*24*30, // 设置30天过期
-			Issuer:    "pluto",
+			Issuer:    "microservice-mall",
 		},
 	}
 	token, err := j.CreateToken(claims)
