@@ -11,7 +11,13 @@ import (
 )
 
 func InitRouters() {
-	Router := gin.Default()
+	Router := gin.New()
+	Router.Use(gin.LoggerWithConfig(
+		gin.LoggerConfig{
+			SkipPaths: []string{"/order/v1/health"},
+		},
+	),gin.Recovery())
+
 	ApiGroup := Router.Group("/order/v1")
 	router.InitHealthRoute(ApiGroup)
 
