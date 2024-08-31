@@ -16,11 +16,11 @@ import (
 func Trace() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		jaegerConfig := global.ApiConfig.JaegerInfo
-		jaegerURL := fmt.Sprintf("http://%s:%d/api/traces", jaegerConfig.Host, jaegerConfig.Port)
+		jaegerURL := fmt.Sprintf("%s:%d", jaegerConfig.Host, jaegerConfig.Port)
 		cfg := &config.Configuration{
 			ServiceName: global.ApiConfig.Name,
 			Sampler:     &config.SamplerConfig{Type: jaeger.SamplerTypeConst, Param: 1},
-			Reporter:    &config.ReporterConfig{LogSpans: true, CollectorEndpoint: jaegerURL},
+			Reporter:    &config.ReporterConfig{LogSpans: true, LocalAgentHostPort: jaegerURL},
 		}
 		tracer, closer, err := cfg.NewTracer(config.Logger(jaeger.StdLogger))
 		if err != nil {
