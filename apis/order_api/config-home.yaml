@@ -1,6 +1,6 @@
-host: '192.168.30.3'
+host: '192.168.3.13'
 port: 8848
-namespace: '2713ea5d-17b2-4670-8553-3c639636e397'
+namespace: 'a61c1d47-3e45-402a-8e3b-adf7bc0a1f5e'
 user: "nacos"
 password: "zhaohaihang"
 dataid: "order_api.json"

@@ -1,6 +1,6 @@
-host: "192.168.30.3"
+host: "192.168.3.13"
 port: 8848
-namespace: "fe54a239-5181-4cec-8df5-68ea3ee47f42"
+namespace: "a61c1d47-3e45-402a-8e3b-adf7bc0a1f5e"
 user: 'nacos'
 password: 'zhaohaihang'
 dataid: 'userop_service.json'
