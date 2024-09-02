@@ -17,7 +17,15 @@ import (
 	"github.com/zhaohaihang/user_api/utils"
 )
 
-// GetUserList 获取用户列表
+// GetUserList
+// @Tags      User
+// @Summary   获取用户列表
+// @Security  ApiKeyAuth
+// @Produce  application/json
+// @Param     page    query   string  false "页码"
+// @Param     size    query   string  false "大小"
+// @Success 200 {string} string "ok"
+// @Router   /user_api/v1/user/list [get]
 func GetUserList(c *gin.Context) {
 	// 1.获取参数
 	pageNum := c.DefaultQuery("page", "0")
@@ -49,7 +57,16 @@ func GetUserList(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// PasswordLogin 手机密码登录
+// PasswordLogin godoc
+// @Summary 手机密码登录
+// @Description 手机密码登录
+// @Tags User
+// @ID /user/login
+// @Accept  json
+// @Produce  json
+// @Param data body forms.PasswordLoginForm true "body"
+// @Success 200 {string} string "ok"
+// @Router /user_api/v1/user/pwd_login [post]
 func PasswordLogin(c *gin.Context) {
 	// 1.实例化验证对象
 	passwordLoginForm := forms.PasswordLoginForm{}
@@ -106,7 +123,16 @@ func PasswordLogin(c *gin.Context) {
 	}
 }
 
-// 用户注册
+// Register godoc
+// @Summary 注册用户
+// @Description 注册用户
+// @Tags User
+// @ID  /user_api/v1/user/register
+// @Accept  json
+// @Produce  json
+// @Param data body forms.RegisterForm true "body"
+// @Success 200 {string} string "ok"
+// @Router /user_api/v1/user/register [post]
 func Register(c *gin.Context) {
 	// 1.表单认证
 	registerForm := forms.RegisterForm{}

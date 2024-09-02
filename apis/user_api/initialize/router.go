@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zhaohaihang/user_api/global"
 	"github.com/zhaohaihang/user_api/router"
+	"github.com/zhaohaihang/user_api/swagger"
 	"go.uber.org/zap"
 )
 
@@ -18,7 +19,10 @@ func InitRouters() {
 		},
 	),gin.Recovery())
 
-	ApiGroup := Router.Group("/user/v1")
+	ApiGroup := Router.Group("/user_api/v1")
+
+	swagger.InitSwaggarRoute(ApiGroup)
+
 	router.InitHealthRoute(ApiGroup)
 	router.InitBaseRouter(ApiGroup)
 	router.InitUserRouter(ApiGroup)

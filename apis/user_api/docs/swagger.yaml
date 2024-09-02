@@ -1,0 +1,111 @@
+definitions:
+  forms.PasswordLoginForm:
+    properties:
+      captcha:
+        maxLength: 5
+        minLength: 5
+        type: string
+      captcha_id:
+        type: string
+      mobile:
+        type: string
+      password:
+        maxLength: 10
+        minLength: 3
+        type: string
+    required:
+    - captcha
+    - captcha_id
+    - mobile
+    - password
+    type: object
+  forms.RegisterForm:
+    properties:
+      code:
+        maxLength: 5
+        minLength: 5
+        type: string
+      mobile:
+        type: string
+      password:
+        maxLength: 10
+        minLength: 3
+        type: string
+    required:
+    - code
+    - mobile
+    - password
+    type: object
+info:
+  contact: {}
+paths:
+  /user_api/v1/user/list:
+    get:
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: string
+      - description: 大小
+        in: query
+        name: size
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户列表
+      tags:
+      - User
+  /user_api/v1/user/pwd_login:
+    post:
+      consumes:
+      - application/json
+      description: 手机密码登录
+      operationId: /user/login
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/forms.PasswordLoginForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 手机密码登录
+      tags:
+      - User
+  /user_api/v1/user/register:
+    post:
+      consumes:
+      - application/json
+      description: 注册用户
+      operationId: /user_api/v1/user/register
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/forms.RegisterForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 注册用户
+      tags:
+      - User
+swagger: "2.0"
