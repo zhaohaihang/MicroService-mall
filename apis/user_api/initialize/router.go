@@ -19,7 +19,7 @@ func InitRouters() {
 		},
 	),gin.Recovery())
 
-	ApiGroup := Router.Group("/user_api/v1")
+	ApiGroup := Router.Group("/user/v1")
 
 	swagger.InitSwaggarRoute(ApiGroup)
 
