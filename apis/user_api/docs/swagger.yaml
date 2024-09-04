@@ -39,7 +39,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /user_api/v1/user/list:
+  /user/v1/user/list:
     get:
       parameters:
       - description: 页码
@@ -62,7 +62,7 @@ paths:
       summary: 获取用户列表
       tags:
       - User
-  /user_api/v1/user/pwd_login:
+  /user/v1/user/pwd_login:
     post:
       consumes:
       - application/json
@@ -85,7 +85,7 @@ paths:
       summary: 手机密码登录
       tags:
       - User
-  /user_api/v1/user/register:
+  /user/v1/user/register:
     post:
       consumes:
       - application/json

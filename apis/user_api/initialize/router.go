@@ -15,12 +15,12 @@ func InitRouters() {
 	Router := gin.New()
 	Router.Use(gin.LoggerWithConfig(
 		gin.LoggerConfig{
-			SkipPaths: []string{"/user/v1/health"},
+			SkipPaths: []string{"/v1/health"},
 		},
 	),gin.Recovery())
 
-	ApiGroup := Router.Group("/user/v1")
-
+	// ApiGroup := Router.Group("/user/v1")
+	ApiGroup := Router.Group("/v1")
 	swagger.InitSwaggarRoute(ApiGroup)
 
 	router.InitHealthRoute(ApiGroup)

@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/user_api/v1/user/list": {
+        "/user/v1/user/list": {
             "get": {
                 "security": [
                     {
@@ -42,7 +42,7 @@
                 }
             }
         },
-        "/user_api/v1/user/pwd_login": {
+        "/user/v1/user/pwd_login": {
             "post": {
                 "description": "手机密码登录",
                 "consumes": [
@@ -77,7 +77,7 @@
                 }
             }
         },
-        "/user_api/v1/user/register": {
+        "/user/v1/user/register": {
             "post": {
                 "description": "注册用户",
                 "consumes": [

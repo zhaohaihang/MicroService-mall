@@ -16,7 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/user_api/v1/user/list": {
+        "/user/v1/user/list": {
             "get": {
                 "security": [
                     {
@@ -54,7 +54,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user_api/v1/user/pwd_login": {
+        "/user/v1/user/pwd_login": {
             "post": {
                 "description": "手机密码登录",
                 "consumes": [
@@ -89,7 +89,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user_api/v1/user/register": {
+        "/user/v1/user/register": {
             "post": {
                 "description": "注册用户",
                 "consumes": [

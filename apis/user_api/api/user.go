@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v9"
+	// "github.com/go-redis/redis/v9"
 	"github.com/zhaohaihang/user_api/forms"
 	"github.com/zhaohaihang/user_api/global"
 	"github.com/zhaohaihang/user_api/proto"
@@ -25,7 +25,7 @@ import (
 // @Param     page    query   string  false "页码"
 // @Param     size    query   string  false "大小"
 // @Success 200 {string} string "ok"
-// @Router   /user_api/v1/user/list [get]
+// @Router   /user/v1/user/list [get]
 func GetUserList(c *gin.Context) {
 	// 1.获取参数
 	pageNum := c.DefaultQuery("page", "0")
@@ -66,7 +66,7 @@ func GetUserList(c *gin.Context) {
 // @Produce  json
 // @Param data body forms.PasswordLoginForm true "body"
 // @Success 200 {string} string "ok"
-// @Router /user_api/v1/user/pwd_login [post]
+// @Router /user/v1/user/pwd_login [post]
 func PasswordLogin(c *gin.Context) {
 	// 1.实例化验证对象
 	passwordLoginForm := forms.PasswordLoginForm{}
@@ -132,7 +132,7 @@ func PasswordLogin(c *gin.Context) {
 // @Produce  json
 // @Param data body forms.RegisterForm true "body"
 // @Success 200 {string} string "ok"
-// @Router /user_api/v1/user/register [post]
+// @Router /user/v1/user/register [post]
 func Register(c *gin.Context) {
 	// 1.表单认证
 	registerForm := forms.RegisterForm{}
@@ -143,22 +143,22 @@ func Register(c *gin.Context) {
 		return
 	}
 	// 2.通过redis 验证 验证码是否正确
-	value, err := global.RedisClient.Get(context.Background(), registerForm.Mobile).Result()
-	if err == redis.Nil { // redis中没有验证码
-		zap.S().Warnw("can not find code in redis", "mobile num", registerForm.Mobile)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "code error",
-		})
-		return
-	} else { // 验证码错误
-		if value != registerForm.Code {
-			zap.S().Warnw("code not match", "mobile:", registerForm.Mobile, "rediscode:", value, "code:", " registerForm.Code ")
-			c.JSON(http.StatusBadRequest, gin.H{
-				"msg": "code error",
-			})
-			return
-		}
-	}
+	// value, err := global.RedisClient.Get(context.Background(), registerForm.Mobile).Result()
+	// if err == redis.Nil { // redis中没有验证码
+	// 	zap.S().Warnw("can not find code in redis", "mobile num", registerForm.Mobile)
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"msg": "code error",
+	// 	})
+	// 	return
+	// } else { // 验证码错误
+	// 	if value != registerForm.Code {
+	// 		zap.S().Warnw("code not match", "mobile:", registerForm.Mobile, "rediscode:", value, "code:", " registerForm.Code ")
+	// 		c.JSON(http.StatusBadRequest, gin.H{
+	// 			"msg": "code error",
+	// 		})
+	// 		return
+	// 	}
+	// }
 	userResponse, err := global.UserClient.CreateUser(context.Background(), &proto.CreateUserInfoRequest{
 		NickName: registerForm.Mobile,
 		Password: registerForm.Password,
