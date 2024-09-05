@@ -16,6 +16,41 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/goods/v1/banners": {
+            "post": {
+                "description": "创建轮播图",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Banner"
+                ],
+                "summary": "创建轮播图",
+                "operationId": "/goods/v1/banners",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/forms.BannerForm"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/goods/v1/brands": {
             "post": {
                 "description": "创建品牌",
@@ -123,6 +158,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "forms.BannerForm": {
+            "type": "object",
+            "required": [
+                "index"
+            ],
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "index": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "forms.BrandForm": {
             "type": "object",
             "required": [

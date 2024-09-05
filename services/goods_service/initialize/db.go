@@ -36,7 +36,10 @@ func InitDB() {
 	if err != nil {
 		zap.S().Fatalw("gorm open dsn failed: %s", "err", err.Error())
 	}
-	//, &model.Brand{},  &model.GoodsCategoryBrand{}
+	// 可以在迁移时，设置表的字符集
+	// err = global.DB.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci").
+	// 	AutoMigrate(&model.Banner{},&model.Category{},&model.Brand{},&model.Goods{},&model.GoodsCategoryBrand{})
+
 	err = global.DB.AutoMigrate( &model.Banner{},&model.Category{},&model.Brand{},&model.Goods{},&model.GoodsCategoryBrand{})
 	if err != nil {
 		zap.S().Fatalw("db  AutoMigrate:", "err", err.Error())

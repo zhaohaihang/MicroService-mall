@@ -43,7 +43,16 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New创建轮播图
+// New godoc
+// @Summary 创建轮播图
+// @Description 创建轮播图
+// @Tags Banner
+// @ID  /goods/v1/banners 
+// @Accept  json
+// @Produce  json
+// @Param data body forms.BannerForm true "body"
+// @Success 200 {string} string "ok"
+// @Router /goods/v1/banners   [post]
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {

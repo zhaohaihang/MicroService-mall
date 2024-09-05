@@ -1,4 +1,15 @@
 definitions:
+  forms.BannerForm:
+    properties:
+      image:
+        type: string
+      index:
+        type: integer
+      url:
+        type: string
+    required:
+    - index
+    type: object
   forms.BrandForm:
     properties:
       logo:
@@ -87,6 +98,29 @@ definitions:
 info:
   contact: {}
 paths:
+  /goods/v1/banners:
+    post:
+      consumes:
+      - application/json
+      description: 创建轮播图
+      operationId: /goods/v1/banners
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/forms.BannerForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 创建轮播图
+      tags:
+      - Banner
   /goods/v1/brands:
     post:
       consumes:

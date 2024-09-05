@@ -90,6 +90,10 @@ func (g *GoodsServer) CreateCategory(ctx context.Context, request *proto.Categor
 		IsTab: request.IsTab,
 	}
 	if request.Level != 1 { // 非1级分类，需要添加父分类
+		var category model.Category
+		if result := global.DB.First(&category, request.ParentCategory); result.RowsAffected == 0 {
+			return nil, status.Errorf(codes.InvalidArgument, "parent Category is not exist")
+		}
 		category.ParentCategoryID = uint(request.ParentCategory)
 	}
 	result := global.DB.Create(&category)
