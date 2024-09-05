@@ -1,0 +1,159 @@
+definitions:
+  forms.BrandForm:
+    properties:
+      logo:
+        type: string
+      name:
+        maxLength: 10
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
+  forms.CategoryForm:
+    properties:
+      is_tab:
+        type: boolean
+      level:
+        enum:
+        - 1
+        - 2
+        - 3
+        type: integer
+      name:
+        maxLength: 20
+        minLength: 3
+        type: string
+      parent:
+        type: integer
+    required:
+    - is_tab
+    - level
+    - name
+    type: object
+  forms.GoodsForm:
+    properties:
+      brand:
+        type: integer
+      category:
+        type: integer
+      desc_images:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      front_image:
+        type: string
+      goods_brief:
+        minLength: 3
+        type: string
+      goods_sn:
+        minLength: 2
+        type: string
+      images:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      market_price:
+        minimum: 0
+        type: number
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      ship_free:
+        type: boolean
+      shop_price:
+        minimum: 0
+        type: number
+      stocks:
+        minimum: 1
+        type: integer
+    required:
+    - brand
+    - category
+    - desc_images
+    - front_image
+    - goods_brief
+    - goods_sn
+    - images
+    - market_price
+    - name
+    - ship_free
+    - shop_price
+    - stocks
+    type: object
+info:
+  contact: {}
+paths:
+  /goods/v1/brands:
+    post:
+      consumes:
+      - application/json
+      description: 创建品牌
+      operationId: /goods/v1/brands
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/forms.BrandForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 创建品牌
+      tags:
+      - Brand
+  /goods/v1/categorys:
+    post:
+      consumes:
+      - application/json
+      description: 创建分类
+      operationId: /goods/v1/categorys
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/forms.CategoryForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 创建分类
+      tags:
+      - Category
+  /goods/v1/goods:
+    post:
+      consumes:
+      - application/json
+      description: 创建商品
+      operationId: /goods/v1/goods
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/forms.GoodsForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 创建商品
+      tags:
+      - Goods
+swagger: "2.0"

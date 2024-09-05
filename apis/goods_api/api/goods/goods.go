@@ -14,7 +14,6 @@ import (
 	"strconv"
 )
 
-// List 获取商品列表
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
@@ -100,7 +99,16 @@ func List(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New 创建商品
+// New godoc
+// @Summary 创建商品
+// @Description 创建商品
+// @Tags Goods
+// @ID  /goods/v1/goods
+// @Accept  json
+// @Produce  json
+// @Param data body forms.GoodsForm true "body"
+// @Success 200 {string} string "ok"
+// @Router /goods/v1/goods [post]
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {

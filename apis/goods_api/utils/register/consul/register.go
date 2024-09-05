@@ -32,16 +32,6 @@ func NewRegistry(host string, port int) RegistryClient {
 	}
 }
 
-// Register
-// @Description: 服务注册
-// @receiver r
-// @param address
-// @param port
-// @param name
-// @param tags
-// @param id
-// @return error
-//
 func (r *Registry) Register(config *RegistryConfig) error {
 	cfg := api.DefaultConfig()
 	cfg.Address = fmt.Sprintf("%s:%d", global.ApiConfig.ConsulInfo.Host, global.ApiConfig.ConsulInfo.Port)
@@ -72,12 +62,6 @@ func (r *Registry) Register(config *RegistryConfig) error {
 	return nil
 }
 
-// DeRegister
-// @Description: 服务注销
-// @receiver r
-// @param serviceId
-// @return error
-//
 func (r *Registry) DeRegister(serviceId string) error {
 	cfg := api.DefaultConfig()
 	cfg.Address = fmt.Sprintf("%s:%d", r.Host, r.Port)

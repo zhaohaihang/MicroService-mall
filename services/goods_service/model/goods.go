@@ -13,7 +13,7 @@ import (
 type Category struct {
 	gorm.Model
 	Name             string      `gorm:"type:varchar(20);not null" json:"name"`
-	ParentCategoryID uint       `json:"parent"`
+	ParentCategoryID uint       `json:"parent" gorm:"default:null"`   // default:null 解决顶级分类外键无法插入null的问题
 	ParentCategory   *Category   `json:"-"`
 	SubCategory      []*Category `gorm:"foreignKey:ParentCategoryID;references:ID" json:"sub_category"`
 	Level            int32       `gorm:"type:int;not null;default:1" json:"level"`

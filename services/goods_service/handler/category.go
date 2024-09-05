@@ -84,9 +84,12 @@ func (g *GoodsServer) CreateCategory(ctx context.Context, request *proto.Categor
 	createCategorySpan := opentracing.GlobalTracer().StartSpan("CreateCategory", opentracing.ChildOf(parentSpan.Context()))
 	defer createCategorySpan.Finish()
 
-	var category model.Category
-	category.Name = request.Name
-	if request.Level != 1 {
+	category := model.Category{
+		Level: request.Level,
+		Name:  request.Name,
+		IsTab: request.IsTab,
+	}
+	if request.Level != 1 { // 非1级分类，需要添加父分类
 		category.ParentCategoryID = uint(request.ParentCategory)
 	}
 	result := global.DB.Create(&category)

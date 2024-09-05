@@ -89,7 +89,16 @@ func Detail(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// New 创建商品目录
+// New godoc
+// @Summary 创建分类
+// @Description 创建分类
+// @Tags Category
+// @ID  /goods/v1/categorys
+// @Accept  json
+// @Produce  json
+// @Param data body forms.CategoryForm true "body"
+// @Success 200 {string} string "ok"
+// @Router /goods/v1/categorys [post]
 func New(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {

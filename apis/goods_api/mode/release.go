@@ -26,7 +26,7 @@ func ReleaseMode() {
 
 	checkConfig := global.ApiConfig.ServiceInfo
 	check := &api.AgentServiceCheck{
-		HTTP:                           fmt.Sprintf("http://%s:%d/goods/v1/health", global.ApiConfig.Host, global.Port),
+		HTTP:                           fmt.Sprintf("http://%s:%d/v1/health", global.ApiConfig.Host, global.Port),
 		GRPCUseTLS:                     false,
 		Timeout:                        checkConfig.CheckTimeOut,
 		Interval:                       checkConfig.CheckInterval,

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zhaohaihang/goods_api/global"
 	"github.com/zhaohaihang/goods_api/router"
+	"github.com/zhaohaihang/goods_api/swagger"
 	"go.uber.org/zap"
 )
 
@@ -13,11 +14,13 @@ func InitRouter() {
 	Router := gin.New()
 	Router.Use(gin.LoggerWithConfig(
 		gin.LoggerConfig{
-			SkipPaths: []string{"/goods/v1/health"},
+			SkipPaths: []string{"/v1/health"},
 		},
-	),gin.Recovery())
+	), gin.Recovery())
 
-	ApiGroup := Router.Group("/goods/v1")
+	// ApiGroup := Router.Group("/goods/v1")
+	ApiGroup := Router.Group("/v1")
+	swagger.InitSwaggarRoute(ApiGroup)
 	router.InitHealthRouter(ApiGroup)
 	router.InitBannerRouter(ApiGroup)
 	router.InitGoodsRouter(ApiGroup)

@@ -63,7 +63,12 @@ func (g *GoodsServer) CreateBrand(ctx context.Context, request *proto.BrandReque
 		Name: request.Name,
 		Logo: request.Logo,
 	}
-	global.DB.Create(&brand)
+	result = global.DB.Create(&brand)
+	if result.RowsAffected == 0 {
+		zap.S().Errorw("create brand error ", "err", result.Error)
+		return nil, result.Error
+	}
+
 	response := &proto.BrandInfoResponse{
 		Id:   int32(brand.ID),
 		Name: brand.Name,
