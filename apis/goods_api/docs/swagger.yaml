@@ -21,6 +21,16 @@ definitions:
     required:
     - name
     type: object
+  forms.CategoryBrandForm:
+    properties:
+      brand_id:
+        type: integer
+      category_id:
+        type: integer
+    required:
+    - brand_id
+    - category_id
+    type: object
   forms.CategoryForm:
     properties:
       is_tab:
@@ -144,6 +154,29 @@ paths:
       summary: 创建品牌
       tags:
       - Brand
+  /goods/v1/categorybrands:
+    post:
+      consumes:
+      - application/json
+      description: 创建商品分类
+      operationId: /goods/v1/categorybrands
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/forms.CategoryBrandForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 创建商品分类
+      tags:
+      - CategoryBrand
   /goods/v1/categorys:
     post:
       consumes:

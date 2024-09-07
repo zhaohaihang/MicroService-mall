@@ -86,6 +86,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/goods/v1/categorybrands": {
+            "post": {
+                "description": "创建商品分类",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CategoryBrand"
+                ],
+                "summary": "创建商品分类",
+                "operationId": "/goods/v1/categorybrands",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/forms.CategoryBrandForm"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/goods/v1/categorys": {
             "post": {
                 "description": "创建分类",
@@ -188,6 +223,21 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 10,
                     "minLength": 3
+                }
+            }
+        },
+        "forms.CategoryBrandForm": {
+            "type": "object",
+            "required": [
+                "brand_id",
+                "category_id"
+            ],
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "category_id": {
+                    "type": "integer"
                 }
             }
         },

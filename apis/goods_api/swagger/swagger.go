@@ -47,7 +47,7 @@ package swagger
 
 import (
 	"github.com/gin-gonic/gin"
-	// "github.com/zhaohaihang/goods_api/docs"
+	_"github.com/zhaohaihang/goods_api/docs"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

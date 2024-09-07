@@ -47,7 +47,7 @@ package swagger
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/zhaohaihang/user_api/docs"
+	_ "github.com/zhaohaihang/user_api/docs"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -55,11 +55,11 @@ import (
 
 func InitSwaggarRoute(ginEngine *gin.RouterGroup) {
 	// programmatically set swagger info
-	docs.SwaggerInfo.Title = "user_api"
-	docs.SwaggerInfo.Description = "user_api"
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "127.0.0.1:6180"
-	docs.SwaggerInfo.BasePath = ""
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	// docs.SwaggerInfo.Title = "user_api"
+	// docs.SwaggerInfo.Description = "user_api"
+	// docs.SwaggerInfo.Version = "1.0"
+	// docs.SwaggerInfo.Host = "127.0.0.1:6180"
+	// docs.SwaggerInfo.BasePath = ""
+	// docs.SwaggerInfo.Schemes = []string{"http", "https"}
 	ginEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler)) // 访问/user_api/v1/swagger/index.html
 }
