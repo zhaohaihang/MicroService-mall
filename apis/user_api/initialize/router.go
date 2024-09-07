@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/zhaohaihang/user_api/global"
+	"github.com/zhaohaihang/user_api/middlewares"
 	"github.com/zhaohaihang/user_api/router"
 	"github.com/zhaohaihang/user_api/swagger"
 	"go.uber.org/zap"
@@ -23,6 +24,7 @@ func InitRouters() {
 	ApiGroup := Router.Group("/v1")
 	swagger.InitSwaggarRoute(ApiGroup)
 
+	ApiGroup.Use(middlewares.Cors())
 	router.InitHealthRoute(ApiGroup)
 	router.InitBaseRouter(ApiGroup)
 	router.InitUserRouter(ApiGroup)
