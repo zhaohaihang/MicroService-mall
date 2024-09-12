@@ -109,6 +109,21 @@ info:
   contact: {}
 paths:
   /goods/v1/banners:
+    get:
+      consumes:
+      - application/json
+      description: 查询轮播图
+      operationId: /goods/v1/banners
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 查询轮播图
+      tags:
+      - Banner
     post:
       consumes:
       - application/json

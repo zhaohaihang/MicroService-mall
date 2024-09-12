@@ -1,4 +1,5 @@
 build:
+	swag init --pd -d ./,docs
 	go build .
 
 runhome:

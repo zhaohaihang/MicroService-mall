@@ -17,6 +17,28 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/goods/v1/banners": {
+            "get": {
+                "description": "查询轮播图",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Banner"
+                ],
+                "summary": "查询轮播图",
+                "operationId": "/goods/v1/banners",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "创建轮播图",
                 "consumes": [

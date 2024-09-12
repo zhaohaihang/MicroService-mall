@@ -15,6 +15,15 @@ import (
 	"strconv"
 )
 
+// List godoc
+// @Summary 查询轮播图
+// @Description 查询轮播图
+// @Tags Banner
+// @ID  /goods/v1/banners 
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string "ok"
+// @Router /goods/v1/banners   [get]
 func List(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
@@ -40,6 +49,7 @@ func List(ctx *gin.Context) {
 		result = append(result, reMap)
 	}
 	ctx.JSON(http.StatusOK, result)
+	
 	entry.Exit()
 }
 
