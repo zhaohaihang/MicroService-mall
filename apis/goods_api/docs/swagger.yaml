@@ -113,7 +113,7 @@ paths:
       consumes:
       - application/json
       description: 查询轮播图
-      operationId: /goods/v1/banners
+      operationId: /goods/v1/banners/get
       produces:
       - application/json
       responses:
@@ -128,7 +128,7 @@ paths:
       consumes:
       - application/json
       description: 创建轮播图
-      operationId: /goods/v1/banners
+      operationId: /goods/v1/banners/post
       parameters:
       - description: body
         in: body
@@ -144,6 +144,37 @@ paths:
           schema:
             type: string
       summary: 创建轮播图
+      tags:
+      - Banner
+  /goods/v1/banners/:id:
+    delete:
+      consumes:
+      - application/json
+      description: 删除轮播图
+      operationId: /goods/v1/banners/delete
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 删除轮播图
+      tags:
+      - Banner
+    put:
+      consumes:
+      - application/json
+      description: 更新轮播图
+      operationId: /goods/v1/banners/put
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 更新轮播图
       tags:
       - Banner
   /goods/v1/brands:

@@ -19,7 +19,7 @@ import (
 // @Summary 查询轮播图
 // @Description 查询轮播图
 // @Tags Banner
-// @ID  /goods/v1/banners 
+// @ID  /goods/v1/banners/get
 // @Accept  json
 // @Produce  json
 // @Success 200 {string} string "ok"
@@ -57,7 +57,7 @@ func List(ctx *gin.Context) {
 // @Summary 创建轮播图
 // @Description 创建轮播图
 // @Tags Banner
-// @ID  /goods/v1/banners 
+// @ID  /goods/v1/banners/post 
 // @Accept  json
 // @Produce  json
 // @Param data body forms.BannerForm true "body"
@@ -99,7 +99,15 @@ func New(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// Update 更新轮播图信息
+// New godoc
+// @Summary 更新轮播图
+// @Description 更新轮播图
+// @Tags Banner
+// @ID  /goods/v1/banners/put 
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string "ok"
+// @Router /goods/v1/banners/:id   [put]
 func Update(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {
@@ -146,7 +154,15 @@ func Update(ctx *gin.Context) {
 	entry.Exit()
 }
 
-// Delete 删除轮播图
+// New godoc
+// @Summary 删除轮播图
+// @Description 删除轮播图
+// @Tags Banner
+// @ID  /goods/v1/banners/delete 
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string "ok"
+// @Router /goods/v1/banners/:id   [delete]
 func Delete(ctx *gin.Context) {
 	entry, blockError := utils.SentinelEntry(ctx)
 	if blockError != nil {

@@ -29,7 +29,7 @@ const docTemplate = `{
                     "Banner"
                 ],
                 "summary": "查询轮播图",
-                "operationId": "/goods/v1/banners",
+                "operationId": "/goods/v1/banners/get",
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -51,7 +51,7 @@ const docTemplate = `{
                     "Banner"
                 ],
                 "summary": "创建轮播图",
-                "operationId": "/goods/v1/banners",
+                "operationId": "/goods/v1/banners/post",
                 "parameters": [
                     {
                         "description": "body",
@@ -63,6 +63,52 @@ const docTemplate = `{
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/goods/v1/banners/:id": {
+            "put": {
+                "description": "更新轮播图",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Banner"
+                ],
+                "summary": "更新轮播图",
+                "operationId": "/goods/v1/banners/put",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除轮播图",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Banner"
+                ],
+                "summary": "删除轮播图",
+                "operationId": "/goods/v1/banners/delete",
                 "responses": {
                     "200": {
                         "description": "ok",
