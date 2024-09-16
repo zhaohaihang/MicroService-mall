@@ -3,7 +3,8 @@ package initialize
 import (
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/flow"
-	"github.com/zhaohaihang/userop_api/utils"
+	"github.com/zhaohaihang/user_api/utils"
+
 	"go.uber.org/zap"
 )
 
@@ -16,7 +17,7 @@ func InitSentinel() {
 	}
 	_, err = flow.LoadRules([]*flow.Rule{
 		{
-			Resource:               "userop_api",
+			Resource:               "user_api",
 			TokenCalculateStrategy: flow.Direct, // 支持两种启动策略：WarmUp 冷启动策略; Direct 直接启动
 			ControlBehavior:        flow.Reject, // 超过限制时执行的策略，支持两种策略: Reject 直接拒绝 ; Throttling 匀速通过
 			Threshold:              10000,       // 允许通过请求数量的阈值

@@ -18,6 +18,7 @@ func main() {
 	initialize.InitFileAbsPath(*nacosConfig)
 	initialize.InitLogger()
 	initialize.InitConfig()
+	initialize.InitSentinel()
 	initialize.InitTranslator("zh")
 	initialize.InitValidator()
 	initialize.InitService()
